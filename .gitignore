@@ -1,0 +1,9 @@
+**/node_modules/
+work/shiri-desktop/app/
+work/shiri-desktop/build/
+**/.smoke-appdata*/
+**/launch.stdout.log
+**/launch.stderr.log
+outputs/installers/
+outputs/shiri-logo.png
+outputs/shiri-logo.ico

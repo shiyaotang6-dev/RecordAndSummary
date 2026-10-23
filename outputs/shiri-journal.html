@@ -1,0 +1,1479 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4f6f2">
+  <link rel="icon" type="image/png" href="shiri-logo.png">
+  <title>总结记录</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #202824;
+      --muted: #79837e;
+      --line: #e7ebe6;
+      --paper: #ffffff;
+      --canvas: #f4f6f2;
+      --green: #236b52;
+      --green-dark: #174d3b;
+      --green-soft: #e8f2ec;
+      --yellow: #f0c86a;
+      --coral: #d87e64;
+      --blue: #6f91a4;
+      --shadow: 0 8px 28px rgba(30, 52, 40, .045);
+      font-family: Inter, "Segoe UI", "Microsoft YaHei UI", "Noto Sans SC", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; color: var(--ink); background: var(--canvas); font-size: 14px; }
+    button, input, textarea, select { color: inherit; font: inherit; }
+    button { cursor: pointer; }
+    .app { min-height: 100vh; display: grid; grid-template-columns: 232px minmax(0, 1fr); }
+    .sidebar { background: var(--paper); border-right: 1px solid var(--line); padding: 25px 15px 17px; display: flex; flex-direction: column; min-height: 100vh; }
+    .brand { display: flex; align-items: center; gap: 11px; padding: 0 10px; margin-bottom: 27px; }
+    .brand-mark { width: 36px; height: 36px; border-radius: 11px; display: grid; place-items: center; color: #fff; background: var(--green); }
+    .brand-mark svg { width: 21px; height: 21px; }
+    .brand-name { font-size: 17px; font-weight: 750; letter-spacing: 0; }
+    .brand-caption { font-size: 10px; color: var(--muted); margin-top: 2px; letter-spacing: 1px; }
+    .new-entry { height: 42px; width: 100%; border: 0; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 9px; background: var(--green); color: white; font-weight: 650; box-shadow: 0 3px 8px rgba(35,107,82,.15); }
+    .new-entry:hover, .save-entry:hover { background: var(--green-dark); }
+    .new-entry svg { width: 17px; height: 17px; }
+    .side-label { margin: 27px 11px 9px; text-transform: uppercase; color: #a0a8a3; font-size: 10px; letter-spacing: 1px; font-weight: 700; }
+    .nav { display: grid; gap: 4px; }
+    .nav-item { height: 40px; padding: 0 11px; border: 0; border-radius: 7px; background: transparent; display: flex; align-items: center; gap: 12px; color: #58635d; text-align: left; }
+    .nav-item svg { width: 17px; height: 17px; color: #7c8881; flex: none; }
+    .nav-item.active { color: var(--green-dark); background: var(--green-soft); font-weight: 650; }
+    .nav-item.active svg { color: var(--green); }
+    .side-date { margin: 11px 11px 0; color: var(--muted); font-size: 12px; }
+    .sidebar-bottom { margin-top: auto; border-top: 1px solid var(--line); padding: 15px 7px 0; }
+    .local-state { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 11px; }
+    .local-dot { width: 7px; height: 7px; background: #64a783; border-radius: 50%; }
+    .profile { display: flex; align-items: center; gap: 9px; margin-top: 17px; }
+    .avatar { width: 31px; height: 31px; display: grid; place-items: center; border-radius: 50%; color: #664d2a; background: #f2e4c5; font-weight: 700; }
+    .profile-name { font-size: 12px; font-weight: 650; }
+    .profile-meta { font-size: 10px; color: var(--muted); margin-top: 2px; }
+    .main { min-width: 0; padding: 0 35px 54px; }
+    .topbar { height: 67px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); margin: 0 -2px; }
+    .breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
+    .breadcrumb strong { color: var(--ink); font-weight: 600; }
+    .top-actions { display: flex; align-items: center; gap: 11px; }
+    .search-wrap { width: 208px; height: 34px; display: flex; align-items: center; gap: 8px; border: 1px solid var(--line); border-radius: 7px; background: white; padding: 0 9px; }
+    .search-wrap svg { width: 15px; height: 15px; color: #8a948e; flex: none; }
+    .search-wrap input { min-width: 0; width: 100%; border: 0; outline: 0; background: transparent; font-size: 12px; }
+    .search-wrap input::placeholder { color: #a1aaa5; }
+    .icon-button { width: 34px; height: 34px; border: 1px solid var(--line); border-radius: 7px; background: white; display: grid; place-items: center; }
+    .icon-button svg { width: 16px; height: 16px; color: #66736c; }
+    .workspace { max-width: 1180px; margin: 0 auto; }
+    .page-head { padding: 31px 0 21px; display: flex; align-items: end; justify-content: space-between; gap: 18px; }
+    .eyebrow { color: var(--green); font-size: 11px; font-weight: 700; letter-spacing: .4px; margin-bottom: 8px; }
+    h1 { margin: 0; font-size: 25px; line-height: 1.25; font-weight: 720; letter-spacing: 0; }
+    .date-subtitle { color: var(--muted); font-size: 12px; margin-top: 8px; }
+    .date-tools { display: flex; align-items: center; gap: 8px; flex: none; }
+    .date-arrow { width: 32px; height: 32px; border: 1px solid var(--line); border-radius: 7px; background: white; display: grid; place-items: center; }
+    .date-arrow svg { width: 15px; height: 15px; color: #64716a; }
+    .today-button { height: 32px; border: 1px solid var(--line); border-radius: 7px; background: white; padding: 0 11px; color: #56625b; font-size: 12px; }
+    .view-tabs { display: inline-flex; gap: 3px; padding: 3px; background: #e9ede8; border-radius: 8px; margin-bottom: 21px; }
+    .view-tab { min-width: 68px; height: 30px; border: 0; border-radius: 6px; padding: 0 12px; color: #6e7972; background: transparent; font-size: 12px; }
+    .view-tab.active { background: white; color: var(--green-dark); font-weight: 650; box-shadow: 0 1px 3px rgba(25,46,35,.08); }
+    .content-grid { display: grid; grid-template-columns: minmax(0, 1fr) 270px; gap: 20px; align-items: start; }
+    .primary-column, .insight-column { min-width: 0; }
+    .primary-column { display: flex; flex-direction: column; }
+    .primary-column .composer { order: 2; }
+    .primary-column .list-head, .primary-column .filter-row, .primary-column .entry-list { order: 1; }
+    .composer { background: var(--paper); border: 1px solid var(--line); border-radius: 9px; padding: 17px; box-shadow: var(--shadow); }
+    .section-title { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 13px; }
+    .section-title h2 { margin: 0; font-size: 14px; font-weight: 700; }
+    .section-hint { color: var(--muted); font-size: 11px; }
+    .entry-input { width: 100%; min-height: 79px; resize: vertical; border: 1px solid #e6ebe6; border-radius: 7px; background: #fbfcfa; padding: 12px; outline: 0; line-height: 1.65; }
+    .entry-input:focus, .summary-input:focus { border-color: #8ab49e; box-shadow: 0 0 0 3px rgba(35,107,82,.08); }
+    .entry-input::placeholder { color: #a1aaa4; }
+    .composer-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 11px; }
+    .entry-options { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .select-control, .duration-control { height: 32px; border: 1px solid var(--line); border-radius: 6px; background: white; padding: 0 9px; color: #68746d; font-size: 11px; }
+    .select-control { min-width: 93px; }
+    .duration-control { width: 88px; }
+    .save-entry { display: inline-flex; align-items: center; justify-content: center; gap: 7px; height: 34px; border: 0; border-radius: 6px; background: var(--green); color: white; padding: 0 13px; font-size: 12px; font-weight: 650; white-space: nowrap; }
+    .save-entry svg { width: 14px; height: 14px; }
+    .list-head { margin: 24px 0 11px; display: flex; align-items: center; justify-content: space-between; }
+    .list-head h2 { margin: 0; font-size: 14px; font-weight: 700; }
+    .entry-count { color: var(--muted); font-size: 11px; }
+    .filter-row { display: flex; align-items: center; gap: 6px; overflow-x: auto; padding: 0 0 11px; scrollbar-width: none; }
+    .filter-row::-webkit-scrollbar { display: none; }
+    .filter-chip { flex: none; height: 26px; border: 1px solid #e5eae5; background: white; color: #768078; padding: 0 10px; border-radius: 20px; font-size: 11px; }
+    .filter-chip.active { color: var(--green-dark); border-color: #b8d1c1; background: #edf5ef; }
+    .entry-list { display: grid; gap: 9px; }
+    .entry-card { position: relative; display: grid; grid-template-columns: 54px minmax(0,1fr) 28px; gap: 12px; align-items: start; background: white; border: 1px solid var(--line); border-radius: 8px; padding: 14px 13px; }
+    .entry-time { padding-top: 2px; color: #87928b; font-size: 11px; font-variant-numeric: tabular-nums; }
+    .entry-body { min-width: 0; }
+    .entry-title { font-size: 13px; line-height: 1.55; font-weight: 640; word-break: break-word; }
+    .entry-detail { color: #758078; font-size: 12px; line-height: 1.65; margin-top: 5px; white-space: pre-wrap; word-break: break-word; }
+    .entry-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 9px; }
+    .tag { display: inline-flex; align-items: center; height: 21px; border-radius: 5px; padding: 0 7px; color: #4c765e; background: #eaf3ec; font-size: 10px; }
+    .tag.tag-学习 { color: #657fa0; background: #edf1f8; }
+    .tag.tag-生活 { color: #aa7450; background: #fbf0e5; }
+    .tag.tag-灵感 { color: #a36358; background: #faece8; }
+    .tag.tag-健康 { color: #6d8a4d; background: #f0f4e6; }
+    .entry-project, .entry-duration { color: #939c96; font-size: 10px; }
+    .entry-project::before { content: "·"; margin-right: 6px; color: #c1c8c2; }
+    .delete-entry { width: 27px; height: 27px; border: 0; border-radius: 5px; background: transparent; display: grid; place-items: center; opacity: .45; }
+    .delete-entry:hover { opacity: 1; background: #f8efed; color: #b45a4b; }
+    .delete-entry svg { width: 14px; height: 14px; }
+    .empty-state { background: white; border: 1px dashed #dce3dc; border-radius: 8px; text-align: center; color: var(--muted); padding: 34px 20px; font-size: 12px; }
+    .empty-symbol { width: 35px; height: 35px; border-radius: 50%; display: grid; place-items: center; background: #eff4ef; color: var(--green); margin: 0 auto 10px; font-size: 18px; }
+    .side-panel { background: white; border: 1px solid var(--line); border-radius: 9px; padding: 16px; box-shadow: var(--shadow); }
+    .side-panel + .side-panel { margin-top: 12px; }
+    .side-panel h2 { margin: 0; font-size: 13px; font-weight: 700; }
+    .today-stat { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin: 15px 0 14px; }
+    .stat-box { min-height: 65px; border-radius: 7px; background: #f6f8f5; padding: 10px; }
+    .stat-value { font-size: 20px; line-height: 1; font-weight: 730; color: var(--green-dark); font-variant-numeric: tabular-nums; }
+    .stat-label { margin-top: 7px; color: #859089; font-size: 10px; }
+    .progress-track { height: 5px; border-radius: 9px; background: #e9eee9; overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: inherit; background: var(--green); transition: width .2s ease; }
+    .progress-note { display: flex; justify-content: space-between; gap: 8px; color: #8a948e; font-size: 10px; margin-top: 7px; }
+    .week-mini { margin-top: 15px; display: grid; gap: 9px; }
+    .week-row { display: grid; grid-template-columns: 22px 1fr 23px; align-items: center; gap: 8px; color: #7a857e; font-size: 10px; }
+    .week-track { height: 5px; border-radius: 8px; background: #edf0ec; overflow: hidden; }
+    .week-fill { height: 100%; background: #84b59a; border-radius: inherit; }
+    .week-total { text-align: right; font-variant-numeric: tabular-nums; }
+    .quote-panel { background: #f7f3e8; border-color: #eee6d5; }
+    .quote-mark { color: #c29742; font-size: 22px; line-height: .6; margin-top: 14px; }
+    .quote-text { margin-top: 7px; color: #615a4b; font-size: 12px; line-height: 1.7; }
+    .quote-source { color: #a69b84; font-size: 10px; margin-top: 8px; }
+    .period-layout { display: grid; grid-template-columns: minmax(0,1fr) 295px; gap: 20px; align-items: start; }
+    .period-main { min-width: 0; }
+    .period-banner { display: flex; align-items: center; justify-content: space-between; gap: 15px; padding: 18px 20px; border-radius: 9px; background: var(--green); color: white; margin-bottom: 14px; }
+    .period-banner h2 { margin: 0; font-size: 16px; font-weight: 700; }
+    .period-banner p { margin: 6px 0 0; color: rgba(255,255,255,.72); font-size: 11px; }
+    .banner-count { text-align: right; flex: none; }
+    .banner-count strong { display: block; font-size: 26px; line-height: 1.1; font-variant-numeric: tabular-nums; }
+    .banner-count span { color: rgba(255,255,255,.7); font-size: 10px; }
+    .metric-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 9px; margin-bottom: 14px; }
+    .metric { border: 1px solid var(--line); border-radius: 8px; background: white; padding: 13px 14px; }
+    .metric-value { font-size: 20px; font-weight: 730; line-height: 1.1; }
+    .metric-label { color: var(--muted); font-size: 10px; margin-top: 7px; }
+    .period-panel { background: white; border: 1px solid var(--line); border-radius: 9px; padding: 17px; margin-bottom: 12px; }
+    .period-panel .section-title { margin-bottom: 14px; }
+    .day-bars { display: grid; gap: 11px; }
+    .day-bar-row { display: grid; grid-template-columns: 49px minmax(0,1fr) 24px; gap: 9px; align-items: center; }
+    .day-name { color: #748078; font-size: 10px; }
+    .day-bar-track { height: 7px; border-radius: 10px; background: #eef1ed; overflow: hidden; }
+    .day-bar-fill { height: 100%; border-radius: inherit; background: #77a98d; min-width: 0; }
+    .day-bar-count { text-align: right; color: #8e9891; font-size: 10px; }
+    .review-label { display: block; color: #58655c; font-size: 11px; font-weight: 650; margin: 13px 0 7px; }
+    .summary-input { display: block; width: 100%; min-height: 88px; resize: vertical; padding: 10px; border: 1px solid var(--line); border-radius: 7px; background: #fcfdfb; outline: 0; line-height: 1.65; font-size: 12px; }
+    .summary-save { height: 30px; padding: 0 10px; margin-top: 9px; color: var(--green-dark); background: var(--green-soft); border: 1px solid #d9e9dd; border-radius: 6px; font-size: 11px; font-weight: 650; }
+    .summary-status { display: inline-block; margin-left: 8px; color: #849087; font-size: 10px; }
+    .tag-summary { display: grid; gap: 10px; }
+    .tag-summary-row { display: grid; grid-template-columns: 68px 1fr 20px; align-items: center; gap: 8px; }
+    .tag-summary-row .tag { width: max-content; }
+    .tag-summary-track { height: 5px; background: #eff2ee; overflow: hidden; border-radius: 9px; }
+    .tag-summary-fill { height: 100%; border-radius: inherit; background: var(--green); }
+    .tag-summary-count { text-align: right; color: #8a948d; font-size: 10px; }
+    .calendar { display: grid; grid-template-columns: repeat(7,minmax(0,1fr)); gap: 5px; }
+    .calendar-head { height: 25px; display: grid; place-items: center; color: #8a948e; font-size: 10px; }
+    .calendar-day { min-height: 64px; border: 1px solid #edf0ec; border-radius: 6px; background: white; padding: 7px; text-align: left; position: relative; }
+    .calendar-day:hover { border-color: #a9c8b4; background: #fbfdfb; }
+    .calendar-day.outside { color: #b9c0ba; background: #fafbf9; }
+    .calendar-day.today { border-color: #76a98b; box-shadow: inset 0 0 0 1px #76a98b; }
+    .calendar-num { font-size: 10px; }
+    .calendar-dots { display: flex; gap: 3px; margin-top: 10px; }
+    .calendar-dot { width: 5px; height: 5px; border-radius: 50%; background: #77a98d; }
+    .calendar-count { color: #8a948e; font-size: 9px; margin-top: 4px; }
+    .calendar-page .calendar { gap: 6px; }
+    .calendar-page .calendar-head { height: 27px; }
+    .calendar-page .calendar-day { min-height: 80px; border-radius: 7px; padding: 10px; }
+    .calendar-day.selected { border-color: #78ab8d; box-shadow: inset 0 0 0 1px #78ab8d; }
+    .calendar-day.today .calendar-num { color: var(--green-dark); font-weight: 750; }
+    .calendar-help { color: #859089; font-size: 11px; }
+    .day-back { height: 32px; border: 1px solid var(--line); border-radius: 7px; background: white; padding: 0 10px; color: #56625b; font-size: 11px; }
+    .mini-records { display: grid; gap: 8px; }
+    .mini-record { border-left: 2px solid #8db79b; padding: 2px 0 2px 10px; }
+    .mini-record-title { font-size: 11px; line-height: 1.5; }
+    .mini-record-meta { color: #89948c; font-size: 9px; margin-top: 4px; }
+    .period-history { display: flex; align-items: center; gap: 10px; margin: 0 0 13px; }
+    .period-history label { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 11px; }
+    .period-history select { min-width: min(100%, 300px); height: 34px; padding: 0 30px 0 10px; border: 1px solid var(--line); border-radius: 7px; color: inherit; background: rgba(10, 15, 22, .56); }
+    .metric-button { width: 100%; color: inherit; text-align: left; cursor: pointer; }
+    .metric-button:hover, .metric-button.active { border-color: rgba(205, 224, 248, .48); box-shadow: 0 0 16px rgba(157, 190, 236, .17), inset 0 1px rgba(255,255,255,.2); }
+    .metric-button:focus-visible, .auto-summary-item:focus-visible, .recent-entry:focus-visible, .metric-detail-row:focus-visible { outline: 2px solid #b8cce7; outline-offset: 2px; }
+    .metric-details[hidden] { display: none; }
+    .metric-detail-list { display: grid; gap: 7px; }
+    .metric-detail-row { width: 100%; display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 3px 12px; padding: 10px 11px; color: inherit; text-align: left; border: 1px solid rgba(205,218,235,.12); border-radius: 7px; background: rgba(7, 12, 20, .25); cursor: pointer; }
+    .metric-detail-row:hover, .recent-entry:hover, .auto-summary-item:hover { border-color: rgba(205,224,248,.34); background-color: rgba(151,177,213,.1); }
+    .metric-detail-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; }
+    .metric-detail-meta { color: var(--muted); font-size: 10px; }
+    .period-history-wrap { min-width: 0; }
+    .period-history-wrap select { max-width: 100%; }
+    .auto-summary-item { width: 100%; padding: 4px 6px; color: inherit; text-align: left; border: 1px solid transparent; border-radius: 5px; background: transparent; cursor: pointer; }
+    .auto-summary-item { display: grid; grid-template-columns: minmax(116px, 138px) minmax(0, 1fr); align-items: start; gap: 0 7px; }
+    .auto-summary-item.date-mode { grid-template-columns: minmax(0, 1fr); }
+    .auto-summary-item.date-mode .auto-summary-date { display: none; }
+    .auto-summary-date { color: inherit; font-size: 10px; }
+    .auto-summary-content { min-width: 0; overflow-wrap: anywhere; }
+    .auto-summary-title, .auto-summary-detail { display: inline; }
+    .summary-mode-switch { display: inline-flex; gap: 3px; padding: 3px; border: 1px solid rgba(205,218,235,.16); border-radius: 7px; background: rgba(7, 12, 20, .22); }
+    .summary-mode-button { height: 25px; padding: 0 8px; color: var(--muted); border: 0; border-radius: 5px; background: transparent; font-size: 10px; cursor: pointer; }
+    .summary-mode-button.active { color: inherit; background: rgba(154,181,218,.2); box-shadow: inset 0 0 0 1px rgba(205,224,248,.18); }
+    .time-stats { margin-bottom: 12px; }
+    .time-stat-list { display: grid; gap: 7px; }
+    .time-stat-group { display: grid; gap: 5px; }
+    .time-stat-row { width: 100%; display: grid; grid-template-columns: minmax(0,1fr) auto auto; align-items: center; gap: 9px; padding: 8px 9px; color: inherit; text-align: left; border: 1px solid rgba(205,218,235,.13); border-radius: 7px; background: rgba(7, 12, 20, .2); cursor: pointer; }
+    .time-stat-row:hover { border-color: rgba(205,224,248,.36); background: rgba(151,177,213,.1); }
+    .time-stat-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; }
+    .time-stat-count, .time-stat-total { color: var(--muted); font-size: 10px; white-space: nowrap; }
+    .time-stat-details { display: grid; gap: 4px; padding: 0 5px 0 12px; border-left: 1px solid rgba(185,204,228,.22); }
+    .time-stat-detail { width: 100%; display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 8px; padding: 5px 6px; color: inherit; text-align: left; border: 1px solid transparent; border-radius: 5px; background: transparent; cursor: pointer; }
+    .time-stat-detail:hover { border-color: rgba(205,224,248,.28); background: rgba(151,177,213,.1); }
+    .time-stat-detail-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 10px; }
+    .time-stat-detail-time { color: var(--muted); font-size: 10px; white-space: nowrap; }
+    .time-stats-empty { color: var(--muted); font-size: 10px; }
+    @media (max-width: 760px) { .insight-column .time-stats { grid-column: 1 / -1; } }
+    .category-manage { height: 32px; padding: 0 9px; border: 1px solid var(--line); border-radius: 6px; color: inherit; background: rgba(10, 15, 22, .34); font-size: 10px; white-space: nowrap; }
+    .category-dialog { width: min(440px, calc(100vw - 28px)); max-height: min(680px, calc(100vh - 32px)); padding: 0; overflow: hidden; color: #e9eef5; border: 1px solid rgba(211,226,246,.3); border-radius: 12px; background: rgba(15,22,32,.97); box-shadow: 0 24px 70px rgba(0,0,0,.5); }
+    .category-dialog::backdrop { background: rgba(2, 5, 10, .65); backdrop-filter: blur(5px); }
+    .category-dialog-inner { padding: 19px; }
+    .category-dialog-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 16px; }
+    .category-dialog-head h2 { margin: 0; font-size: 16px; }
+    .category-dialog-close { width: 30px; height: 30px; border: 1px solid var(--line); border-radius: 7px; color: inherit; background: rgba(255,255,255,.06); }
+    .category-add-row { display: flex; gap: 8px; margin-top: 7px; }
+    .category-add-row input { flex: 1; min-width: 0; height: 36px; padding: 0 10px; color: inherit; border: 1px solid var(--line); border-radius: 7px; background: rgba(3,8,15,.55); }
+    .category-add-row button, .category-delete { height: 32px; padding: 0 10px; color: inherit; border: 1px solid var(--line); border-radius: 6px; background: rgba(158,181,211,.12); }
+    .category-list { max-height: 340px; overflow: auto; display: grid; gap: 6px; margin-top: 16px; }
+    .category-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 38px; padding: 4px 6px 4px 10px; border: 1px solid rgba(205,218,235,.12); border-radius: 7px; }
+    .category-row small { margin-left: 7px; color: #9eacbf; font-size: 10px; }
+    .category-delete { font-size: 10px; }
+    .category-delete:disabled { opacity: .45; cursor: not-allowed; }
+    .recent-entry-list { display: flex; flex-direction: column; align-items: stretch; gap: 4px; max-height: clamp(180px, calc(100vh - 360px), 680px); min-height: 40px; overflow-x: hidden; overflow-y: auto; padding: 0 3px 2px 0; align-content: flex-start; overscroll-behavior: contain; scrollbar-width: thin; }
+    .recent-entry { display: block; flex: 0 0 auto; width: 100%; min-width: 0; min-height: 43px; margin: 0; padding: 7px 8px; overflow: hidden; color: inherit; text-align: left; line-height: 1.35; border: 1px solid transparent; border-radius: 6px; background: transparent; cursor: pointer; }
+    .recent-entry-date { display: block; margin: 0 0 3px; color: #aab6c5; font-size: 9px; line-height: 1.35; }
+    .recent-entry-title { display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; line-height: 1.4; }
+    .recent-entry-empty { color: #9eacbf; font-size: 10px; padding: 8px; }
+    .search-results-panel { background: var(--paper); border: 1px solid var(--line); border-radius: 9px; padding: 17px; box-shadow: var(--shadow); }
+    .search-result-list { display: grid; gap: 8px; }
+    .search-result { display: grid; gap: 3px; width: 100%; min-width: 0; padding: 11px 12px; color: inherit; text-align: left; border: 1px solid var(--line); border-radius: 7px; background: rgba(255,255,255,.36); cursor: pointer; }
+    .search-result-date { color: var(--muted); font-size: 10px; line-height: 1.4; }
+    .search-result-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; font-weight: 650; line-height: 1.45; }
+    .search-result-detail { display: -webkit-box; overflow: hidden; color: var(--muted); font-size: 11px; line-height: 1.55; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+    .search-result-meta { display: flex; flex-wrap: wrap; gap: 10px; color: var(--muted); font-size: 10px; }
+    .sidebar { position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+    @media (max-width: 760px) {
+      .period-history { align-items: stretch; flex-direction: column; }
+      .period-history label { align-items: stretch; flex-direction: column; }
+      .period-history label select { width: 100%; }
+      .auto-summary-item { grid-template-columns: minmax(0, 1fr); }
+      .recent-entry-list { max-height: 280px; }
+    }
+    .auto-summary { display: grid; gap: 15px; }
+    .auto-summary-group h3 { display: flex; align-items: center; gap: 7px; margin: 0 0 8px; color: #425b4b; font-size: 12px; font-weight: 700; }
+    .auto-summary-group h3::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: #77a98d; }
+    .auto-summary-list { display: grid; gap: 7px; padding-left: 13px; border-left: 1px solid #e1eae2; margin-left: 2px; }
+    .auto-summary-item { color: #526057; font-size: 11px; line-height: 1.65; }
+    .auto-summary-item strong { color: #87928a; font-size: 10px; font-weight: 550; margin-right: 5px; }
+    .auto-summary-detail { color: #87928a; }
+    .reflection-label { display: block; color: #58655c; font-size: 11px; font-weight: 650; margin: 15px 0 7px; }
+    .toast { position: fixed; z-index: 10; left: 50%; bottom: 24px; transform: translate(-50%, 12px); background: #24352b; color: #fff; border-radius: 7px; padding: 10px 15px; font-size: 12px; box-shadow: 0 5px 20px rgba(0,0,0,.15); opacity: 0; pointer-events: none; transition: .2s ease; }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+    .mobile-header, .mobile-nav { display: none; }
+    @media (max-width: 1000px) {
+      .main { padding-left: 24px; padding-right: 24px; }
+      .content-grid { grid-template-columns: minmax(0,1fr) 240px; gap: 14px; }
+      .period-layout { grid-template-columns: minmax(0,1fr) 255px; gap: 14px; }
+    }
+    @media (max-width: 760px) {
+      .app { display: block; padding-bottom: 66px; }
+      .sidebar { display: none; }
+      .main { padding: 0 16px 34px; }
+      .topbar { height: 54px; margin: 0 -1px; }
+      .breadcrumb { font-size: 11px; }
+      .search-wrap { width: 36px; border: 0; background: transparent; padding: 0 10px; transition: width .2s ease; }
+      .search-wrap:focus-within { width: min(190px, 48vw); border: 1px solid var(--line); background: white; }
+      .search-wrap input { width: 0; padding: 0; }
+      .search-wrap:focus-within input { width: 100%; }
+      .top-actions { gap: 5px; }
+      .icon-button { width: 32px; height: 32px; }
+      .page-head { padding: 23px 0 16px; align-items: start; flex-direction: column; gap: 13px; }
+      h1 { font-size: 22px; }
+      .date-tools { align-self: stretch; }
+      .date-tools .date-spacer { flex: 1; }
+      .view-tabs { width: 100%; display: grid; grid-template-columns: repeat(3,1fr); margin-bottom: 15px; }
+      .view-tab { width: 100%; }
+      .content-grid, .period-layout { grid-template-columns: 1fr; gap: 12px; }
+      .insight-column { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+      .side-panel + .side-panel { margin-top: 0; }
+      .quote-panel { display: none; }
+      .composer { padding: 14px; }
+      .entry-input { min-height: 76px; }
+      .composer-footer { align-items: end; }
+      .entry-options { gap: 6px; }
+      .select-control { min-width: 82px; }
+      .duration-control { width: 79px; }
+      .entry-card { grid-template-columns: 42px minmax(0,1fr) 24px; gap: 8px; padding: 12px 10px; }
+      .metric-grid { gap: 6px; }
+      .metric { padding: 11px 10px; }
+      .metric-value { font-size: 18px; }
+      .period-banner { padding: 15px; }
+      .calendar-page .calendar-day { min-height: 65px; padding: 7px; }
+      .calendar-day { min-height: 54px; padding: 6px; }
+      .mobile-nav { position: fixed; z-index: 5; left: 0; right: 0; bottom: 0; height: 62px; display: grid; grid-template-columns: repeat(3,1fr); background: rgba(255,255,255,.97); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom); }
+      .mobile-nav button { border: 0; background: transparent; display: grid; place-content: center; justify-items: center; gap: 4px; color: #8a948e; font-size: 9px; }
+      .mobile-nav button svg { width: 18px; height: 18px; }
+      .mobile-nav button.active { color: var(--green); font-weight: 700; }
+    }
+    @media (max-width: 390px) {
+      .main { padding-left: 12px; padding-right: 12px; }
+      .section-hint { display: none; }
+      .composer-footer { gap: 5px; }
+      .entry-options { gap: 5px; }
+      .select-control { width: 80px; padding: 0 5px; }
+      .duration-control { width: 70px; padding: 0 5px; }
+      .save-entry { padding: 0 9px; }
+      .insight-column { grid-template-columns: 1fr; }
+      .calendar-page .calendar-day { min-height: 52px; padding: 5px; }
+      .calendar-day { min-height: 47px; }
+    }
+    :root {
+      color-scheme: dark;
+      --ink: #f7fbff;
+      --muted: #bfdbff;
+      --line: rgba(151, 207, 255, .24);
+      --paper: rgba(18, 66, 174, .68);
+      --canvas: #07339d;
+      --green: #46d6ed;
+      --green-dark: #f7fbff;
+      --green-soft: rgba(71, 221, 245, .16);
+      --shadow: 0 16px 45px rgba(1, 8, 56, .3);
+    }
+    body {
+      min-height: 100vh;
+      color: #f7fbff;
+      background: #061510 url("deep-green-flow.png") center / cover fixed no-repeat;
+    }
+    .sidebar {
+      color: #f8fcff;
+      background: linear-gradient(180deg, rgba(4, 13, 42, .96) 0, rgba(8, 36, 125, .88) 150px, rgba(17, 78, 197, .7) 100%);
+      border-right: 1px solid rgba(123, 206, 255, .4);
+      box-shadow: 12px 0 40px rgba(1, 12, 60, .25);
+      backdrop-filter: blur(24px) saturate(145%);
+    }
+    .brand-mark {
+      color: #082469;
+      background: linear-gradient(145deg, #8ff6ff, #35bff0 58%, #6394ff);
+      box-shadow: 0 0 22px rgba(51, 208, 255, .4);
+    }
+    .brand-caption, .side-label, .side-date, .profile-meta, .local-state { color: #aacbff; }
+    .new-entry, .save-entry {
+      color: #f8fcff;
+      border: 1px solid rgba(137, 225, 255, .66);
+      background: linear-gradient(135deg, rgba(39, 192, 237, .88), rgba(40, 100, 232, .94));
+      box-shadow: 0 7px 23px rgba(12, 121, 244, .3), inset 0 1px rgba(255,255,255,.3);
+    }
+    .new-entry:hover, .save-entry:hover { background: linear-gradient(135deg, #44d9f4, #3878f4); }
+    .nav-item { color: #e5f1ff; }
+    .nav-item svg { color: #b1d5ff; }
+    .nav-item:hover { background: rgba(91, 166, 255, .14); }
+    .nav-item.active {
+      color: white;
+      background: linear-gradient(100deg, rgba(54, 217, 240, .24), rgba(91, 153, 255, .16));
+      box-shadow: inset 3px 0 #69f2ff, inset 0 1px rgba(255,255,255,.12), 0 0 19px rgba(41, 206, 255, .12);
+    }
+    .nav-item.active svg { color: #a4f5ff; }
+    .sidebar-bottom { border-top-color: rgba(160, 206, 255, .22); }
+    .local-dot { background: #57f2c1; box-shadow: 0 0 10px #57f2c1; }
+    .avatar { color: #073777; background: linear-gradient(145deg, #ffe4a1, #ffb96e); }
+    .main { color: #f7fbff; }
+    .topbar { border-bottom-color: rgba(180, 220, 255, .22); }
+    .breadcrumb { color: #bbd8ff; }
+    .breadcrumb strong, h1, .eyebrow { color: white; }
+    .eyebrow { text-shadow: 0 1px 10px rgba(43, 213, 255, .35); }
+    .date-subtitle, .section-hint, .calendar-help { color: #c1dcff; }
+    .search-wrap, .icon-button, .date-arrow, .today-button, .day-back {
+      color: #f7fbff;
+      border-color: rgba(164, 214, 255, .32);
+      background: rgba(5, 28, 100, .48);
+      box-shadow: inset 0 1px rgba(255,255,255,.12);
+      backdrop-filter: blur(14px);
+    }
+    .search-wrap svg, .icon-button svg, .date-arrow svg { color: #e2f5ff; }
+    .search-wrap input { color: white; }
+    .search-wrap input::placeholder { color: #b1cfff; }
+    .view-tabs { background: rgba(4, 20, 77, .38); border: 1px solid rgba(143, 204, 255, .19); }
+    .view-tab { color: #c3d9f8; }
+    .view-tab.active {
+      color: #061b55;
+      background: linear-gradient(135deg, #b0f8ff, #68d9ff 48%, #8bb7ff);
+      box-shadow: 0 3px 14px rgba(55, 206, 255, .25), inset 0 1px white;
+      font-weight: 750;
+    }
+    .calendar-page { padding: 17px; border: 1px solid rgba(157, 212, 255, .4); border-radius: 12px; background: linear-gradient(155deg, rgba(6, 23, 83, .82), rgba(15, 70, 169, .68)); box-shadow: var(--shadow), inset 0 1px rgba(255,255,255,.13); backdrop-filter: blur(20px) saturate(145%); }
+    .calendar-page .section-title h2 { color: white; }
+    .calendar-page .calendar { gap: 6px; }
+    .calendar-page .calendar-head { color: #bbdcff; }
+    .calendar-page .calendar-day {
+      min-height: clamp(68px, 9.5vh, 92px);
+      color: #f6fbff;
+      border: 1px solid rgba(174, 218, 255, .2);
+      border-radius: 8px;
+      background: linear-gradient(145deg, rgba(36, 102, 210, .5), rgba(13, 50, 147, .54));
+      box-shadow: inset 0 1px rgba(255,255,255,.08);
+      transition: transform .15s ease, border-color .15s ease, background .15s ease;
+    }
+    .calendar-page .calendar-day:hover { transform: translateY(-2px); border-color: rgba(109, 239, 255, .82); background: linear-gradient(145deg, rgba(43, 169, 230, .6), rgba(36, 88, 192, .65)); }
+    .calendar-page .calendar-day.outside { color: #9eb9de; background: rgba(8, 31, 102, .44); }
+    .calendar-page .calendar-day.today, .calendar-page .calendar-day.selected { border-color: #65f2ff; box-shadow: inset 0 0 0 1px #65f2ff, 0 0 18px rgba(49, 222, 255, .22); }
+    .calendar-page .calendar-day.today .calendar-num { color: #c8fbff; }
+    .calendar-page .calendar-dots { margin-top: 11px; }
+    .calendar-page .calendar-dot { background: #75ffe0; box-shadow: 0 0 7px rgba(117,255,224,.8); }
+    .calendar-page .calendar-count { color: #b4d6ff; }
+    .composer, .entry-card, .side-panel, .period-panel, .metric, .period-banner {
+      color: #f5faff;
+      border: 1px solid rgba(158, 212, 255, .28);
+      background: linear-gradient(145deg, rgba(19, 72, 172, .75), rgba(11, 44, 130, .72));
+      box-shadow: 0 12px 30px rgba(2, 12, 57, .19), inset 0 1px rgba(255,255,255,.1);
+      backdrop-filter: blur(18px) saturate(140%);
+    }
+    .period-banner { background: linear-gradient(115deg, rgba(13, 64, 163, .91), rgba(15, 124, 205, .72), rgba(30, 72, 193, .86)); }
+    .period-banner p, .banner-count span { color: #d1e6ff; }
+    .banner-count strong { color: white; }
+    .composer .section-title h2, .list-head h2, .side-panel h2, .period-panel h2, .period-panel h3 { color: white; }
+    .entry-input, .summary-input, .select-control, .duration-control {
+      color: white;
+      border: 1px solid rgba(166, 215, 255, .3);
+      background: rgba(4, 28, 95, .42);
+    }
+    .entry-input::placeholder, .summary-input::placeholder { color: #aac8ee; }
+    .select-control option { color: #142e69; background: #f5fbff; }
+    .entry-card { background: linear-gradient(110deg, rgba(23, 83, 179, .65), rgba(12, 48, 134, .68)); }
+    .entry-title, .entry-detail, .entry-time { color: #f4f9ff; }
+    .entry-detail { color: #c4dcf7; }
+    .entry-time, .entry-project, .entry-duration, .entry-count { color: #b8d3f5; }
+    .entry-project::before { color: #9fc3ed; }
+    .tag { color: #d8fcff; background: rgba(34, 194, 215, .19); border: 1px solid rgba(123, 232, 244, .22); }
+    .tag.tag-学习 { color: #e1e8ff; background: rgba(111, 140, 255, .23); }
+    .tag.tag-生活 { color: #ffe8ce; background: rgba(255, 169, 101, .19); }
+    .tag.tag-灵感 { color: #ffe0ed; background: rgba(245, 119, 177, .2); }
+    .tag.tag-健康 { color: #e5ffd5; background: rgba(133, 217, 103, .18); }
+    .filter-chip { color: #c6dcf7; border-color: rgba(169, 212, 255, .22); background: rgba(5, 29, 95, .38); }
+    .filter-chip.active { color: #092968; border-color: #9cf5ff; background: linear-gradient(135deg, #b7f9ff, #84dfff); }
+    .stat-box { background: rgba(5, 29, 92, .32); border: 1px solid rgba(168, 216, 255, .16); }
+    .stat-value { color: #effcff; }
+    .stat-label, .progress-note, .week-row, .week-total, .metric-label { color: #bfd7f6; }
+    .progress-track, .week-track, .tag-summary-track, .day-bar-track { background: rgba(4, 24, 81, .55); }
+    .progress-fill, .week-fill, .day-bar-fill, .tag-summary-fill { background: linear-gradient(90deg, #40e2ec, #66aaff); box-shadow: 0 0 10px rgba(64, 218, 246, .35); }
+    .quote-panel { background: linear-gradient(145deg, rgba(18, 83, 166, .75), rgba(42, 70, 166, .68)); border-color: rgba(159, 214, 255, .29); }
+    .quote-mark { color: #76edff; }
+    .quote-text { color: #eff9ff; }
+    .quote-source { color: #b7d6fa; }
+    .auto-summary-group h3 { color: #d8fbff; }
+    .auto-summary-group h3::before { background: #68fff0; box-shadow: 0 0 8px #40e9ed; }
+    .auto-summary-list { border-left-color: rgba(118, 220, 255, .32); }
+    .auto-summary-item { color: #e4f2ff; }
+    .auto-summary-item strong, .auto-summary-detail, .mini-record-meta { color: #aec9eb; }
+    .mini-record-title { color: #f5faff; }
+    .mini-record { border-left-color: #5ee6f1; }
+    .day-bar-row .day-name, .day-bar-count, .tag-summary-count { color: #bdd7f6; }
+    .reflection-label { color: #d8f6ff; }
+    .summary-save { color: #082563; border: 1px solid rgba(173, 245, 255, .8); background: linear-gradient(135deg, #aef7ff, #75d9ff); }
+    .summary-status { color: #bcf8e7; }
+    .empty-state { color: #c6dcf7; border-color: rgba(174, 218, 255, .26); background: rgba(4, 28, 90, .3); }
+    .empty-symbol { color: #082e6e; background: #86eafb; }
+    .delete-entry { color: #e2f3ff; }
+    .delete-entry:hover { color: white; background: rgba(247, 115, 153, .24); }
+    .toast { color: #f4fcff; background: rgba(4, 17, 58, .94); border: 1px solid rgba(126, 220, 255, .45); }
+    .mobile-nav { background: rgba(4, 17, 62, .89); border-top-color: rgba(132, 205, 255, .3); backdrop-filter: blur(20px) saturate(150%); }
+    .mobile-nav button { color: #bfd8fb; }
+    .mobile-nav button.active { color: #83f2ff; }
+    @media (max-width: 760px) {
+      body { background-attachment: scroll; }
+      .main { background: transparent; }
+      .topbar { border-bottom-color: rgba(172, 215, 255, .24); }
+      .date-tools .today-button { background: rgba(45, 82, 52, .32); }
+      .calendar-page { padding: 11px; }
+      .calendar-page .calendar { gap: 4px; }
+      .calendar-page .calendar-head { height: 22px; }
+      .calendar-page .calendar-count { font-size: 8px; }
+      .calendar-page .calendar-dots { margin-top: 7px; }
+      .calendar-page .calendar-dot { width: 4px; height: 4px; }
+      .composer, .entry-card, .side-panel, .period-panel, .metric { border-radius: 9px; }
+    }
+    body {
+      background-color: #061510;
+      background-image: linear-gradient(118deg, rgba(7, 10, 14, .3), rgba(8, 12, 17, .38) 55%, rgba(5, 9, 13, .44)), url("deep-green-flow.png");
+      background-position: center;
+      background-size: cover;
+      background-attachment: fixed;
+    }
+    :root {
+      color-scheme: dark;
+      --ink: #edf3ef;
+      --muted: #a7b8ad;
+      --line: rgba(192, 218, 201, .17);
+      --paper: rgba(13, 29, 23, .68);
+      --canvas: #061510;
+      --green: #a0c9ae;
+      --green-dark: #e8f2e9;
+      --green-soft: rgba(128, 176, 139, .15);
+      --shadow: 0 18px 42px rgba(0, 4, 14, .34);
+    }
+    .sidebar {
+      background: linear-gradient(180deg, rgba(7, 13, 25, .94), rgba(13, 25, 44, .84) 46%, rgba(13, 28, 49, .75));
+      border-right-color: rgba(188, 211, 239, .17);
+      box-shadow: 12px 0 38px rgba(0, 4, 14, .28);
+      backdrop-filter: blur(28px) saturate(118%);
+      padding-top: 20px;
+    }
+    .brand-mark {
+      color: #dce9f8;
+      background: linear-gradient(145deg, rgba(114, 153, 190, .72), rgba(55, 82, 119, .82));
+      border: 1px solid rgba(216, 231, 250, .3);
+      box-shadow: inset 0 1px rgba(255,255,255,.22), 0 5px 16px rgba(0,0,0,.18);
+    }
+    .brand-caption, .side-label, .side-date, .profile-meta, .local-state { color: #a4b1c3; }
+    .new-entry, .save-entry, .summary-save, .date-arrow, .today-button, .day-back, .icon-button, .filter-chip, .view-tab.active {
+      color: #f0f5fb;
+      border: 1px solid rgba(221, 234, 251, .24);
+      background: linear-gradient(145deg, rgba(208, 226, 248, .14), rgba(116, 151, 190, .08));
+      box-shadow: inset 0 1px rgba(255,255,255,.19), inset 0 -1px rgba(0,0,0,.12), 0 6px 16px rgba(0, 4, 14, .16);
+      backdrop-filter: blur(18px) saturate(125%);
+    }
+    .new-entry, .save-entry, .summary-save { position: relative; overflow: hidden; }
+    .new-entry::before, .save-entry::before, .summary-save::before, .icon-button::before, .date-arrow::before, .today-button::before {
+      content: "";
+      position: absolute;
+      inset: 1px 1px auto;
+      height: 46%;
+      border-radius: inherit;
+      background: linear-gradient(180deg, rgba(255,255,255,.13), transparent);
+      pointer-events: none;
+    }
+    .new-entry:hover, .save-entry:hover, .summary-save:hover, .date-arrow:hover, .today-button:hover, .icon-button:hover {
+      color: white;
+      border-color: rgba(222, 237, 255, .4);
+      background: linear-gradient(145deg, rgba(200, 223, 248, .2), rgba(125, 160, 198, .13));
+    }
+    .nav-item { color: #d4deec; }
+    .nav-item svg { color: #aebdd0; }
+    .nav-item:hover { background: rgba(185, 209, 239, .07); }
+    .nav-item.active {
+      color: #f6f8fc;
+      background: linear-gradient(100deg, rgba(168, 195, 226, .17), rgba(122, 154, 191, .08));
+      box-shadow: inset 3px 0 #a8c4e2, inset 0 1px rgba(255,255,255,.11);
+    }
+    .nav-item.active svg { color: #d2e1f3; }
+    .local-dot { background: #8fc7b0; box-shadow: 0 0 8px rgba(143,199,176,.48); }
+    .avatar { color: #edf3fa; background: linear-gradient(145deg, #687b91, #34455d); border: 1px solid rgba(218,231,247,.23); }
+    .breadcrumb { color: #aebbd0; }
+    .breadcrumb strong, h1, .eyebrow { color: #f2f5fa; }
+    .eyebrow { text-shadow: none; }
+    .date-subtitle, .section-hint, .calendar-help { color: #aebbd0; }
+    .search-wrap, .icon-button, .date-arrow, .today-button, .day-back {
+      color: #e8eef7;
+      border-color: rgba(212, 227, 246, .2);
+      background: linear-gradient(145deg, rgba(198, 218, 242, .12), rgba(91, 119, 153, .08));
+      box-shadow: inset 0 1px rgba(255,255,255,.15), 0 6px 16px rgba(0, 4, 14, .15);
+      backdrop-filter: blur(18px) saturate(120%);
+    }
+    .search-wrap svg, .icon-button svg, .date-arrow svg { color: #d6e1ef; }
+    .search-wrap input { color: #f3f6fb; }
+    .search-wrap input::placeholder { color: #99a9be; }
+    .view-tabs { background: rgba(7, 15, 28, .45); border: 1px solid rgba(192, 211, 237, .14); }
+    .view-tab { color: #aab8cc; }
+    .view-tab.active { color: #f5f7fb; font-weight: 700; }
+    .calendar-page {
+      border-color: rgba(193, 212, 238, .19);
+      background: linear-gradient(145deg, rgba(17, 31, 51, .76), rgba(16, 29, 49, .64));
+      box-shadow: 0 18px 42px rgba(0,4,14,.3), inset 0 1px rgba(255,255,255,.1);
+      backdrop-filter: blur(25px) saturate(115%);
+    }
+    .calendar-page .calendar-head { color: #aab8ca; }
+    .calendar-page .calendar-day {
+      color: #e7edf5;
+      border-color: rgba(193, 211, 235, .13);
+      background: linear-gradient(145deg, rgba(155, 181, 212, .09), rgba(63, 84, 112, .11));
+      box-shadow: inset 0 1px rgba(255,255,255,.07);
+    }
+    .calendar-page .calendar-day:hover { border-color: rgba(184, 211, 241, .38); background: linear-gradient(145deg, rgba(177, 203, 232, .16), rgba(89, 113, 145, .16)); }
+    .calendar-page .calendar-day.outside { color: #718096; background: rgba(9, 16, 29, .26); }
+    .calendar-page .calendar-day.today, .calendar-page .calendar-day.selected { border-color: rgba(177, 209, 241, .67); box-shadow: inset 0 0 0 1px rgba(177,209,241,.42), 0 0 14px rgba(124,163,205,.1); }
+    .calendar-page .calendar-day.today .calendar-num { color: #edf5ff; }
+    .calendar-page .calendar-dot { background: #a6c6e2; box-shadow: 0 0 6px rgba(166,198,226,.32); }
+    .calendar-page .calendar-count { color: #aebbd0; }
+    .composer, .entry-card, .side-panel, .period-panel, .metric, .period-banner {
+      border-color: rgba(193, 212, 238, .17);
+      background: linear-gradient(145deg, rgba(18, 34, 57, .76), rgba(14, 26, 45, .7));
+      box-shadow: 0 14px 32px rgba(0, 4, 14, .2), inset 0 1px rgba(255,255,255,.09);
+      backdrop-filter: blur(22px) saturate(116%);
+    }
+    .period-banner { background: linear-gradient(110deg, rgba(29, 49, 76, .83), rgba(22, 47, 75, .72)); }
+    .period-banner p, .banner-count span { color: #b4c1d3; }
+    .banner-count strong { color: #f3f6fa; }
+    .entry-input, .summary-input, .select-control, .duration-control {
+      color: #edf2f8;
+      border-color: rgba(198, 216, 238, .2);
+      background: rgba(5, 13, 25, .34);
+      box-shadow: inset 0 1px 5px rgba(0,0,0,.13);
+    }
+    .entry-title-input {
+      display: block;
+      width: 100%;
+      height: 39px;
+      margin: 0 0 8px;
+      padding: 0 11px;
+      border: 1px solid rgba(198, 216, 238, .2);
+      border-radius: 7px;
+      outline: 0;
+      color: #edf2f8;
+      background: rgba(5, 13, 25, .34);
+      box-shadow: inset 0 1px 5px rgba(0,0,0,.13);
+    }
+    .entry-field-label { display: block; margin: 10px 0 6px; color: #a8b5c7; font-size: 11px; font-weight: 600; }
+    .entry-title-input:focus { border-color: rgba(184, 210, 239, .48); box-shadow: 0 0 0 3px rgba(145, 175, 210, .1), inset 0 1px 5px rgba(0,0,0,.13); }
+    .entry-title-input::placeholder { color: #8999ae; }
+    .entry-input::placeholder, .summary-input::placeholder { color: #8999ae; }
+    .select-control option { color: #e9eef6; background: #17243a; }
+    .entry-card { background: linear-gradient(145deg, rgba(26, 44, 68, .69), rgba(16, 29, 48, .68)); }
+    .entry-title, .entry-detail, .entry-time { color: #e9eef6; }
+    .entry-detail, .entry-time, .entry-project, .entry-duration, .entry-count { color: #aebbd0; }
+    .entry-project::before { color: #718198; }
+    .tag, .tag.tag-学习, .tag.tag-生活, .tag.tag-灵感, .tag.tag-健康 {
+      color: #d2deec;
+      border-color: rgba(198, 215, 236, .16);
+      background: rgba(148, 174, 204, .1);
+    }
+    .filter-chip { color: #bdc9d9; }
+    .filter-chip.active { color: #f4f7fb; border-color: rgba(211, 227, 246, .38); }
+    .stat-box { background: rgba(5, 13, 25, .25); border-color: rgba(188, 208, 233, .12); }
+    .stat-value { color: #e9f0f8; }
+    .stat-label, .progress-note, .week-row, .week-total, .metric-label, .day-bar-row .day-name, .day-bar-count, .tag-summary-count { color: #a8b5c7; }
+    .progress-track, .week-track, .tag-summary-track, .day-bar-track { background: rgba(3, 9, 18, .42); }
+    .progress-fill, .week-fill, .day-bar-fill, .tag-summary-fill { background: linear-gradient(90deg, #7696b6, #9cb7d1); box-shadow: none; }
+    .quote-panel { background: linear-gradient(145deg, rgba(31, 44, 63, .76), rgba(18, 31, 50, .72)); border-color: rgba(193, 212, 238, .17); }
+    .quote-mark { color: #b8c7da; }
+    .quote-text { color: #dce5f0; }
+    .quote-source { color: #99a8bc; }
+    .auto-summary-group h3 { color: #d9e3ef; }
+    .auto-summary-group h3::before { background: #a4bfd9; box-shadow: 0 0 6px rgba(164,191,217,.25); }
+    .auto-summary-list { border-left-color: rgba(172, 195, 223, .22); }
+    .auto-summary-item { color: #d1dbe8; }
+    .auto-summary-item strong, .auto-summary-detail, .mini-record-meta { color: #98a8bc; }
+    .mini-record-title { color: #e2e9f2; }
+    .mini-record { border-left-color: #93aecb; }
+    .reflection-label { color: #d4deeb; }
+    .summary-status { color: #a9c5b8; }
+    .empty-state { color: #acb9ca; border-color: rgba(187, 207, 233, .17); background: rgba(5, 13, 25, .24); }
+    .empty-symbol { color: #dce7f4; background: rgba(150, 178, 210, .16); }
+    .delete-entry { color: #b9c7d8; }
+    .delete-entry:hover { color: #f2e7e9; background: rgba(166, 103, 119, .17); }
+    .toast { color: #eef3fa; background: rgba(8, 14, 25, .94); border-color: rgba(190, 210, 237, .22); }
+    .mobile-nav { background: rgba(8, 15, 27, .83); border-top-color: rgba(190, 210, 237, .18); backdrop-filter: blur(24px) saturate(115%); }
+    .mobile-nav button { color: #9eacc0; }
+    .mobile-nav button.active { color: #e0eaf6; }
+    @media (max-width: 760px) {
+      body { background-attachment: scroll; }
+    }
+    .sidebar {
+      background: linear-gradient(180deg, rgba(4, 14, 10, .94), rgba(9, 25, 19, .86) 46%, rgba(10, 27, 20, .78));
+      border-right-color: rgba(188, 216, 195, .16);
+    }
+    .brand-mark {
+      background: linear-gradient(145deg, rgba(132, 180, 145, .56), rgba(43, 77, 57, .82));
+      border-color: rgba(202, 231, 207, .27);
+    }
+    .brand-caption, .side-label, .side-date, .profile-meta, .local-state,
+    .breadcrumb, .date-subtitle, .section-hint, .calendar-help { color: #a9b9ad; }
+    .new-entry, .save-entry, .summary-save, .date-arrow, .today-button, .day-back,
+    .icon-button, .filter-chip, .view-tab.active {
+      color: #edf4ee;
+      border-color: rgba(203, 227, 204, .22);
+      background: linear-gradient(145deg, rgba(177, 211, 181, .13), rgba(75, 112, 81, .1));
+      box-shadow: inset 0 1px rgba(255,255,255,.16), inset 0 -1px rgba(0,0,0,.15), 0 6px 16px rgba(0, 5, 2, .2);
+    }
+    .new-entry:hover, .save-entry:hover, .summary-save:hover, .date-arrow:hover,
+    .today-button:hover, .icon-button:hover {
+      color: #f5fbf5;
+      border-color: rgba(203, 232, 203, .4);
+      background: linear-gradient(145deg, rgba(173, 215, 174, .2), rgba(84, 133, 90, .15));
+    }
+    .nav-item { color: #d4e0d6; }
+    .nav-item svg { color: #aebeaa; }
+    .nav-item:hover { background: rgba(185, 215, 185, .07); }
+    .nav-item.active {
+      color: #f3f8f1;
+      background: linear-gradient(100deg, rgba(142, 188, 145, .18), rgba(99, 146, 104, .09));
+      box-shadow: inset 3px 0 #9cc9a2, inset 0 1px rgba(255,255,255,.1);
+    }
+    .nav-item.active svg { color: #bed9bd; }
+    .local-dot { background: #91c59a; box-shadow: 0 0 8px rgba(145,197,154,.4); }
+    .avatar { background: linear-gradient(145deg, #6f8574, #354b3b); border-color: rgba(207,229,208,.22); }
+    .breadcrumb strong, h1, .eyebrow { color: #f0f5f0; }
+    .search-wrap, .icon-button, .date-arrow, .today-button, .day-back {
+      color: #e8f0e9;
+      border-color: rgba(194, 220, 197, .19);
+      background: linear-gradient(145deg, rgba(166, 201, 168, .11), rgba(70, 105, 77, .09));
+      box-shadow: inset 0 1px rgba(255,255,255,.13), 0 6px 16px rgba(0, 5, 2, .18);
+    }
+    .search-wrap svg, .icon-button svg, .date-arrow svg { color: #ceddce; }
+    .search-wrap input { color: #f1f6f0; }
+    .search-wrap input::placeholder { color: #9bab9d; }
+    .view-tabs { background: rgba(5, 16, 11, .48); border-color: rgba(185, 213, 187, .14); }
+    .view-tab { color: #a9b9aa; }
+    .view-tab.active { color: #f2f7f1; }
+    .calendar-page {
+      border-color: rgba(190, 216, 193, .18);
+      background: linear-gradient(145deg, rgba(12, 30, 22, .77), rgba(13, 28, 22, .66));
+    }
+    .calendar-page .calendar-head { color: #aec2b0; }
+    .calendar-page .calendar-day {
+      color: #e6eee6;
+      border-color: rgba(192, 219, 194, .13);
+      background: linear-gradient(145deg, rgba(112, 157, 120, .1), rgba(39, 72, 47, .13));
+    }
+    .calendar-page .calendar-day:hover {
+      border-color: rgba(162, 208, 166, .42);
+      background: linear-gradient(145deg, rgba(131, 184, 137, .17), rgba(54, 99, 62, .18));
+    }
+    .calendar-page .calendar-day.outside { color: #829588; background: rgba(6, 18, 12, .28); }
+    .calendar-page .calendar-day.today, .calendar-page .calendar-day.selected {
+      border-color: rgba(165, 211, 169, .62);
+      box-shadow: inset 0 0 0 1px rgba(165,211,169,.38), 0 0 14px rgba(109,166,117,.1);
+    }
+    .calendar-page .calendar-day.today .calendar-num { color: #eaf5e8; }
+    .calendar-page .calendar-dot { background: #a6d2a8; box-shadow: 0 0 6px rgba(166,210,168,.28); }
+    .calendar-page .calendar-count { color: #afc1b0; }
+    .composer, .entry-card, .side-panel, .period-panel, .metric, .period-banner {
+      border-color: rgba(190, 217, 194, .17);
+      background: linear-gradient(145deg, rgba(17, 38, 28, .78), rgba(12, 29, 21, .74));
+      box-shadow: 0 14px 32px rgba(0, 5, 2, .24), inset 0 1px rgba(255,255,255,.08);
+    }
+    .period-banner { background: linear-gradient(110deg, rgba(27, 61, 39, .86), rgba(18, 45, 30, .76)); }
+    .period-banner p, .banner-count span { color: #b4c7b6; }
+    .banner-count strong, .composer .section-title h2, .list-head h2,
+    .side-panel h2, .period-panel h2, .period-panel h3 { color: #f1f6ef; }
+    .entry-input, .summary-input, .select-control, .duration-control, .entry-title-input {
+      color: #eaf2eb;
+      border-color: rgba(190, 218, 193, .2);
+      background: rgba(4, 15, 9, .38);
+      box-shadow: inset 0 1px 5px rgba(0,0,0,.16);
+    }
+    .entry-title-input:focus { border-color: rgba(163, 207, 167, .48); box-shadow: 0 0 0 3px rgba(132, 181, 136, .1), inset 0 1px 5px rgba(0,0,0,.16); }
+    .entry-field-label { color: #aebeaa; }
+    .entry-input::placeholder, .summary-input::placeholder, .entry-title-input::placeholder { color: #8fa092; }
+    .select-control option { color: #e9f0e8; background: #17291c; }
+    .entry-card { background: linear-gradient(145deg, rgba(22, 47, 33, .76), rgba(14, 32, 22, .74)); }
+    .entry-title, .entry-detail, .entry-time { color: #e7efe6; }
+    .entry-detail, .entry-time, .entry-project, .entry-duration, .entry-count { color: #aebfae; }
+    .entry-project::before { color: #829784; }
+    .tag, .tag.tag-学习, .tag.tag-生活, .tag.tag-灵感, .tag.tag-健康 {
+      color: #d4e2d4;
+      border-color: rgba(182, 211, 183, .16);
+      background: rgba(126, 168, 128, .11);
+    }
+    .filter-chip { color: #bdccbe; }
+    .filter-chip.active {
+      color: #eff6ed;
+      border-color: rgba(177, 215, 178, .4);
+      background: linear-gradient(145deg, rgba(133, 180, 137, .24), rgba(75, 125, 82, .2));
+    }
+    .stat-box { background: rgba(4, 15, 9, .28); border-color: rgba(187, 215, 189, .12); }
+    .stat-value { color: #eaf2e8; }
+    .stat-label, .progress-note, .week-row, .week-total, .metric-label,
+    .day-bar-row .day-name, .day-bar-count, .tag-summary-count { color: #a8b9a9; }
+    .progress-track, .week-track, .tag-summary-track, .day-bar-track { background: rgba(3, 11, 6, .43); }
+    .progress-fill, .week-fill, .day-bar-fill, .tag-summary-fill { background: linear-gradient(90deg, #79ad84, #a4c9a3); box-shadow: none; }
+    .quote-panel { background: linear-gradient(145deg, rgba(27, 48, 34, .78), rgba(15, 32, 23, .75)); border-color: rgba(190, 217, 194, .17); }
+    .quote-mark { color: #a8c9a7; }
+    .quote-text { color: #dce8dc; }
+    .quote-source { color: #9bab9b; }
+    .auto-summary-group h3 { color: #d9e8d8; }
+    .auto-summary-group h3::before { background: #a1c8a2; box-shadow: 0 0 6px rgba(161,200,162,.23); }
+    .auto-summary-list { border-left-color: rgba(172, 204, 175, .22); }
+    .auto-summary-item { color: #d1dfd1; }
+    .auto-summary-item strong, .auto-summary-detail, .mini-record-meta { color: #9bac9c; }
+    .mini-record-title { color: #e2ece1; }
+    .mini-record { border-left-color: #91b995; }
+    .reflection-label { color: #d4e2d3; }
+    .summary-save { color: #e6f1e5; border-color: rgba(181, 216, 182, .3); background: rgba(117, 163, 120, .18); }
+    .summary-status { color: #a8cbb0; }
+    .empty-state { color: #acbbaa; border-color: rgba(187, 214, 190, .17); background: rgba(4, 15, 9, .26); }
+    .empty-symbol { color: #dce9dc; background: rgba(134, 176, 137, .16); }
+    .delete-entry { color: #b9c8ba; }
+    .delete-entry:hover { color: #f2e7e9; background: rgba(166, 103, 119, .17); }
+    .toast { color: #eef4ed; background: rgba(7, 16, 10, .94); border-color: rgba(182, 212, 185, .22); }
+    .mobile-nav { background: rgba(7, 16, 10, .86); border-top-color: rgba(184, 213, 187, .18); }
+    .mobile-nav button { color: #a6b7a7; }
+    .mobile-nav button.active { color: #c5dfc2; }
+    @media (max-width: 760px) {
+      body { background-attachment: scroll; }
+      .topbar { border-bottom-color: rgba(184, 213, 187, .18); }
+      .date-tools .today-button { background: linear-gradient(145deg, rgba(177, 211, 181, .13), rgba(75, 112, 81, .1)); }
+    }
+    :root {
+      --ink: #edf1f6;
+      --muted: #aab5c3;
+      --line: rgba(205, 218, 235, .18);
+      --paper: rgba(15, 22, 32, .7);
+      --canvas: #0a0f16;
+      --green: #a9bfd8;
+      --green-dark: #edf2f8;
+      --green-soft: rgba(164, 188, 218, .15);
+      --shadow: 0 20px 48px rgba(0, 0, 0, .32);
+    }
+    .sidebar {
+      background: linear-gradient(180deg, rgba(8, 12, 19, .9), rgba(13, 19, 29, .78) 46%, rgba(15, 21, 31, .72));
+      border-right-color: rgba(205, 218, 235, .16);
+      box-shadow: 12px 0 38px rgba(0, 0, 0, .26);
+      backdrop-filter: blur(30px) saturate(120%);
+    }
+    .brand-mark {
+      color: #e5edf7;
+      background: linear-gradient(145deg, rgba(166, 190, 219, .42), rgba(55, 68, 88, .66));
+      border-color: rgba(218, 230, 246, .28);
+    }
+    .brand-caption, .side-label, .side-date, .profile-meta, .local-state,
+    .breadcrumb, .date-subtitle, .section-hint, .calendar-help { color: #aab6c5; }
+    .new-entry, .save-entry, .summary-save, .date-arrow, .today-button,
+    .day-back, .icon-button, .filter-chip, .view-tab.active {
+      color: #edf2f8;
+      border: 1px solid rgba(218, 231, 249, .34);
+      background: linear-gradient(145deg, rgba(206, 220, 240, .16), rgba(103, 123, 151, .1));
+      box-shadow: inset 0 1px rgba(255,255,255,.28), inset 0 -1px rgba(153,184,225,.12), 0 0 12px rgba(142,177,226,.13), 0 7px 18px rgba(0, 0, 0, .24);
+      backdrop-filter: blur(20px) saturate(125%);
+    }
+    .new-entry, .save-entry, .summary-save { position: relative; overflow: hidden; }
+    .new-entry::before, .save-entry::before, .summary-save::before,
+    .icon-button::before, .date-arrow::before, .today-button::before {
+      content: "";
+      position: absolute;
+      inset: 1px 1px auto;
+      height: 46%;
+      border-radius: inherit;
+      background: linear-gradient(180deg, rgba(255,255,255,.23), rgba(223,237,255,.035) 70%, transparent);
+      pointer-events: none;
+    }
+    .new-entry:hover, .save-entry:hover, .summary-save:hover, .date-arrow:hover,
+    .today-button:hover, .icon-button:hover {
+      color: #fff;
+      border-color: rgba(229, 240, 255, .64);
+      background: linear-gradient(145deg, rgba(211, 226, 245, .23), rgba(125, 148, 177, .16));
+      box-shadow: inset 0 1px rgba(255,255,255,.32), inset 0 0 12px rgba(196,219,250,.11), 0 0 17px rgba(142,177,226,.26), 0 10px 22px rgba(0,0,0,.28);
+    }
+    .nav-item { color: #d7dfeb; }
+    .nav-item svg { color: #afbdcf; }
+    .nav-item:hover { background: rgba(195, 211, 234, .1); }
+    .nav-item.active {
+      color: #f2f5fa;
+      background: linear-gradient(100deg, rgba(172, 197, 228, .2), rgba(117, 143, 177, .1));
+      box-shadow: inset 3px 0 #c4d8f0, inset 0 1px rgba(255,255,255,.14), 0 0 16px rgba(138,174,222,.14);
+    }
+    .nav-item.active svg { color: #c9d8ea; }
+    .local-dot { background: #a9bfd8; box-shadow: 0 0 8px rgba(169,191,216,.4); }
+    .avatar { color: #edf2f8; background: linear-gradient(145deg, #748198, #384252); border-color: rgba(218,231,247,.24); }
+    .breadcrumb strong, h1, .eyebrow { color: #f1f4f8; }
+    .search-wrap, .icon-button, .date-arrow, .today-button, .day-back {
+      color: #e8edf5;
+      border-color: rgba(211, 225, 243, .2);
+      background: linear-gradient(145deg, rgba(198, 216, 240, .13), rgba(92, 112, 140, .09));
+      box-shadow: inset 0 1px rgba(255,255,255,.22), inset 0 0 9px rgba(191,215,245,.06), 0 0 11px rgba(143,177,224,.1), 0 7px 18px rgba(0, 0, 0, .22);
+      backdrop-filter: blur(20px) saturate(120%);
+    }
+    .search-wrap svg, .icon-button svg, .date-arrow svg { color: #d6e0ed; }
+    .search-wrap input { color: #f2f5f9; }
+    .search-wrap input::placeholder { color: #9caabd; }
+    .view-tabs { background: rgba(8, 12, 19, .5); border-color: rgba(198, 214, 235, .16); }
+    .view-tab { color: #aeb9c9; }
+    .view-tab.active { color: #f2f5fa; }
+    .calendar-page {
+      border-color: rgba(205, 220, 239, .21);
+      background: linear-gradient(145deg, rgba(17, 24, 35, .76), rgba(14, 20, 30, .7));
+      box-shadow: 0 0 28px rgba(132,171,224,.1), 0 20px 48px rgba(0,0,0,.38), inset 0 1px rgba(255,255,255,.18), inset 0 0 24px rgba(181,207,241,.035);
+      backdrop-filter: blur(28px) saturate(125%);
+    }
+    .calendar-page .calendar-head { color: #b5c0d0; }
+    .calendar-page .calendar-day {
+      color: #e8edf4;
+      border-color: rgba(213, 228, 248, .21);
+      background: linear-gradient(145deg, rgba(194, 211, 235, .12), rgba(84, 101, 126, .13));
+      box-shadow: inset 0 1px rgba(255,255,255,.13), inset 0 0 12px rgba(190,214,245,.045), 0 0 9px rgba(140,176,224,.06);
+    }
+    .calendar-page .calendar-day:hover {
+      transform: translateY(-2px) scale(1.025);
+      border-color: rgba(209, 226, 248, .42);
+      background: linear-gradient(145deg, rgba(199, 216, 238, .19), rgba(97, 118, 148, .18));
+      box-shadow: 0 0 18px rgba(164,196,240,.24), 0 10px 20px rgba(0,0,0,.26), inset 0 1px rgba(255,255,255,.22), inset 0 0 18px rgba(191,216,250,.1);
+    }
+    .calendar-page .calendar-day.outside { color: #8995a5; background: rgba(8, 12, 19, .3); }
+    .calendar-page .calendar-day.today, .calendar-page .calendar-day.selected {
+      border-color: rgba(194, 216, 243, .7);
+      box-shadow: inset 0 0 0 1px rgba(209,228,252,.5), 0 0 19px rgba(157,190,236,.24), inset 0 0 14px rgba(180,207,243,.1);
+    }
+    .calendar-page .calendar-day.today .calendar-num { color: #f0f4fa; }
+    .calendar-page .calendar-dot { background: #bed0e6; box-shadow: 0 0 6px rgba(190,208,230,.35); }
+    .calendar-page .calendar-count { color: #b5c0d0; }
+    .composer, .entry-card, .side-panel, .period-panel, .metric, .period-banner {
+      color: #edf1f6;
+      border: 1px solid rgba(211, 226, 246, .26);
+      background: linear-gradient(145deg, rgba(17, 25, 37, .78), rgba(12, 18, 28, .74));
+      box-shadow: 0 0 20px rgba(126,163,214,.1), 0 16px 36px rgba(0, 0, 0, .32), inset 0 1px rgba(255,255,255,.17), inset 0 0 22px rgba(175,201,237,.035);
+      backdrop-filter: blur(26px) saturate(125%);
+    }
+    .period-banner { background: linear-gradient(110deg, rgba(30, 42, 59, .84), rgba(18, 27, 40, .76)); }
+    .period-banner p, .banner-count span { color: #bac5d4; }
+    .banner-count strong, .composer .section-title h2, .list-head h2,
+    .side-panel h2, .period-panel h2, .period-panel h3 { color: #f1f4f8; }
+    .entry-input, .summary-input, .select-control, .duration-control, .entry-title-input {
+      color: #eaf0f7;
+      border-color: rgba(203, 219, 238, .21);
+      background: rgba(5, 9, 15, .4);
+      box-shadow: inset 0 1px 5px rgba(0,0,0,.17);
+    }
+    .entry-title-input:focus, .entry-input:focus, .summary-input:focus { border-color: rgba(198, 221, 250, .58); box-shadow: 0 0 0 3px rgba(157, 184, 220, .14), 0 0 14px rgba(132,171,224,.16), inset 0 1px 5px rgba(0,0,0,.17); }
+    .entry-field-label { color: #b0bdcd; }
+    .entry-input::placeholder, .summary-input::placeholder, .entry-title-input::placeholder { color: #929fb1; }
+    .select-control option { color: #e9eef6; background: #17202d; }
+    .entry-card { background: linear-gradient(145deg, rgba(23, 33, 48, .78), rgba(14, 21, 32, .74)); }
+    .entry-title, .entry-detail, .entry-time { color: #e9eef5; }
+    .entry-detail, .entry-time, .entry-project, .entry-duration, .entry-count { color: #adb9c9; }
+    .entry-project::before { color: #8492a4; }
+    .tag, .tag.tag-学习, .tag.tag-生活, .tag.tag-灵感, .tag.tag-健康 {
+      color: #d6dfeb;
+      border-color: rgba(198, 216, 238, .18);
+      background: rgba(158, 180, 209, .11);
+    }
+    .filter-chip { color: #c0cada; }
+    .filter-chip.active {
+      color: #f1f5fa;
+      border-color: rgba(218, 233, 252, .58);
+      background: linear-gradient(145deg, rgba(170, 194, 224, .24), rgba(103, 127, 160, .18));
+      box-shadow: inset 0 1px rgba(255,255,255,.24), 0 0 15px rgba(152,185,228,.2), 0 7px 18px rgba(0,0,0,.2);
+    }
+    .stat-box { background: rgba(5, 10, 17, .31); border-color: rgba(198, 215, 237, .14); }
+    .stat-value { color: #edf2f8; }
+    .stat-label, .progress-note, .week-row, .week-total, .metric-label,
+    .day-bar-row .day-name, .day-bar-count, .tag-summary-count { color: #aebaca; }
+    .progress-track, .week-track, .tag-summary-track, .day-bar-track { background: rgba(4, 8, 14, .46); }
+    .progress-fill, .week-fill, .day-bar-fill, .tag-summary-fill { background: linear-gradient(90deg, #8298b4, #b0c3da); box-shadow: none; }
+    .quote-panel { background: linear-gradient(145deg, rgba(26, 37, 52, .8), rgba(15, 22, 33, .76)); border-color: rgba(205, 220, 239, .2); }
+    .quote-mark { color: #b2c2d8; }
+    .quote-text { color: #dfe6ef; }
+    .quote-source { color: #a4b0c0; }
+    .auto-summary-group h3 { color: #dce5f0; }
+    .auto-summary-group h3::before { background: #aebfd5; box-shadow: 0 0 6px rgba(174,191,213,.24); }
+    .auto-summary-list { border-left-color: rgba(185, 204, 228, .24); }
+    .auto-summary-item { color: #d4deea; }
+    .auto-summary-item strong, .auto-summary-detail, .mini-record-meta { color: #a2afc0; }
+    .mini-record-title { color: #e6ecf4; }
+    .mini-record { border-left-color: #9eb4cf; }
+    .reflection-label { color: #d9e2ed; }
+    .summary-save { color: #edf2f8; border-color: rgba(207, 222, 241, .28); background: rgba(149, 172, 204, .15); }
+    .summary-status { color: #b7c8dd; }
+    .empty-state { color: #b2bdcc; border-color: rgba(198, 215, 237, .2); background: rgba(5, 10, 17, .28); }
+    .empty-symbol { color: #e0e8f2; background: rgba(156, 181, 211, .17); }
+    .delete-entry { color: #bdc9d8; }
+    .delete-entry:hover { color: #f2e7e9; background: rgba(166, 103, 119, .17); }
+    .toast { color: #eef2f7; background: rgba(8, 12, 19, .94); border-color: rgba(198, 216, 238, .24); }
+    .mobile-nav { background: rgba(9, 14, 22, .86); border-top-color: rgba(208, 225, 247, .26); backdrop-filter: blur(25px) saturate(125%); box-shadow: 0 -5px 22px rgba(131,168,219,.1); }
+    .mobile-nav button { color: #aebaca; }
+    .mobile-nav button.active { color: #d0def0; }
+    .app button { transition: transform .18s cubic-bezier(.2,.75,.25,1), filter .18s ease, box-shadow .18s ease; }
+    @media (hover: hover) and (pointer: fine) {
+      .app button:hover { transform: translateY(-2px) scale(1.025); filter: brightness(1.08) drop-shadow(0 0 5px rgba(190,216,250,.3)) drop-shadow(0 7px 9px rgba(0,0,0,.28)); }
+      .app button:active { transform: translateY(0) scale(.985); filter: brightness(.98); }
+    }
+    .app button:focus-visible { outline: 2px solid rgba(207, 224, 245, .82); outline-offset: 2px; }
+    .mini-record { display: block; width: 100%; color: inherit; text-align: left; border: 0; border-left: 2px solid #9eb4cf; background: transparent; cursor: pointer; }
+    .mini-record-title, .mini-record-meta { display: block; }
+    .app .recent-entry:hover, .app .recent-entry:active { transform: none; filter: none; box-shadow: none; }
+    .metric-button { font: inherit; }
+    .period-history select { color: #e6edf6; border-color: rgba(205,218,235,.24); background-color: rgba(10,15,22,.8); }
+    .period-history option { color: #e6edf6; background: #121a25; }
+    .category-manage { border-color: rgba(205,218,235,.22); background: rgba(149,172,204,.09); }
+    .duration-fields { display: inline-flex; align-items: center; gap: 4px; }
+    .duration-fields input { width: 46px; height: 32px; padding: 0 7px; color: inherit; border: 1px solid var(--line); border-radius: 6px; background: rgba(10, 15, 22, .45); font-size: 11px; }
+    .duration-fields span { color: var(--muted); font-size: 10px; }
+    .entry-actions { display: flex; align-items: center; justify-content: flex-end; gap: 3px; }
+    .edit-entry, .delete-entry { width: 27px; height: 27px; border: 0; border-radius: 5px; background: transparent; display: grid; place-items: center; opacity: .62; }
+    .edit-entry:hover { opacity: 1; color: #dce9f8; background: rgba(151, 177, 213, .16); }
+    .edit-entry svg, .delete-entry svg { width: 14px; height: 14px; }
+    .cancel-edit { height: 32px; padding: 0 10px; border: 1px solid var(--line); border-radius: 6px; color: inherit; background: rgba(149,172,204,.09); font-size: 10px; }
+    .period-history { width: 100%; flex-direction: row !important; }
+    .period-history label { flex: 1; min-width: 0; white-space: nowrap; flex-direction: row !important; align-items: center !important; }
+    .period-history select { flex: 1; min-width: 0; width: 100%; }
+    .period-summary-top { margin-bottom: 14px; }
+    .primary-column .list-head { margin-top: 0; }
+    .entry-card { grid-template-columns: 54px minmax(0,1fr) 58px; }
+    .entry-submit-actions { display: inline-flex; align-items: center; gap: 6px; }
+    @media (max-width: 760px) {
+      .period-history { align-items: center !important; flex-direction: row !important; }
+      .period-history label { align-items: center !important; flex-direction: row !important; white-space: nowrap; }
+      .period-history label select { width: 100%; }
+      .duration-fields input { width: 42px; }
+      .entry-card { grid-template-columns: 42px minmax(0,1fr) 52px; }
+      .entry-actions { gap: 0; }
+      .edit-entry, .delete-entry { width: 25px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .app button { transition: none; }
+    }
+    @media (max-width: 760px) {
+      .topbar { border-bottom-color: rgba(198, 216, 238, .18); }
+      .date-tools .today-button { background: linear-gradient(145deg, rgba(206, 220, 240, .16), rgba(103, 123, 151, .1)); }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <button class="new-entry" id="newEntry"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>记录一件事</button>
+      <div class="side-label">记录与回顾</div>
+      <nav class="nav" aria-label="记录与回顾导航">
+        <button class="nav-item active" data-view="calendar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M7.5 3v4M16.5 3v4M3.5 9h17M8 13h.01M12 13h.01M16 13h.01M8 17h.01M12 17h.01"/></svg>日记录</button>
+        <button class="nav-item" data-view="week"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V9M10 19V5M16 19v-7M22 19V3"/><path d="M2 21h21"/></svg>周记录</button>
+        <button class="nav-item" data-view="month"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M7.5 3v4M16.5 3v4M3.5 9h17M8 13h.01M12 13h.01M16 13h.01M8 17h.01M12 17h.01"/></svg>月记录</button>
+      </nav>
+      <div class="side-label">快捷方式</div>
+      <button class="nav-item" id="jumpToday"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3 2"/></svg>回到今天</button>
+      <button class="nav-item" data-action="manage-categories"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h10M4 17h7"/><path d="M18 14v6M15 17h6"/></svg>管理分类</button>
+      <div class="side-date" id="sideDate"></div>
+      <div class="side-label">最近日志</div>
+      <div class="recent-entry-list" id="recentEntries" aria-label="最近 100 条日志"></div>
+    </aside>
+    <main class="main">
+      <div class="topbar">
+        <div class="breadcrumb"><span>我的空间</span><span>/</span><strong id="crumbLabel">每日记录</strong></div>
+        <div class="top-actions">
+          <label class="search-wrap" aria-label="搜索记录"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="10.8" cy="10.8" r="6.7"/><path d="m16 16 4.2 4.2"/></svg><input id="searchInput" placeholder="搜索记录…"></label>
+          <button class="icon-button" id="exportButton" title="导出记录" aria-label="导出记录"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M4 20h16"/></svg></button>
+        </div>
+      </div>
+      <div class="workspace">
+        <header class="page-head">
+          <div><div class="eyebrow" id="eyebrow">日记录</div><h1 id="pageTitle">2026年10月</h1><div class="date-subtitle" id="pageSubtitle"></div></div>
+          <div class="date-tools"><button class="date-arrow" id="previousDate" aria-label="上一个月"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button><button class="today-button" id="todayButton">今天</button><button class="date-arrow" id="nextDate" aria-label="下一个月"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></button><button class="day-back" id="backToCalendar" hidden>返回日记录</button><span class="date-spacer"></span></div>
+        </header>
+        <div class="view-tabs" role="tablist" aria-label="记录与回顾">
+          <button class="view-tab active" data-view="calendar" role="tab">日记录</button><button class="view-tab" data-view="week" role="tab">周记录</button><button class="view-tab" data-view="month" role="tab">月记录</button>
+        </div>
+        <section id="viewRoot"></section>
+      </div>
+    </main>
+  </div>
+  <nav class="mobile-nav" aria-label="底部导航">
+    <button class="active" data-view="calendar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M7.5 3v4M16.5 3v4M3.5 9h17M8 13h.01M12 13h.01M16 13h.01"/></svg><span>日记录</span></button>
+    <button data-view="week"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V9M10 19V5M16 19v-7M22 19V3"/><path d="M2 21h21"/></svg><span>周记录</span></button>
+    <button data-view="month"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M7.5 3v4M16.5 3v4M3.5 9h17M8 13h.01M12 13h.01M16 13h.01"/></svg><span>月记录</span></button>
+  </nav>
+  <dialog class="category-dialog" id="categoryDialog" aria-labelledby="categoryDialogTitle">
+    <div class="category-dialog-inner">
+      <div class="category-dialog-head"><h2 id="categoryDialogTitle">管理分类</h2><button class="category-dialog-close" id="closeCategoryDialog" type="button" aria-label="关闭">×</button></div>
+      <label class="entry-field-label" for="newCategoryInput">添加自定义分类</label>
+      <div class="category-add-row"><input id="newCategoryInput" type="text" maxlength="20" placeholder="输入分类名称"><button id="addCategoryButton" type="button">添加</button></div>
+      <div class="category-list" id="categoryManagerList"></div>
+    </div>
+  </dialog>
+  <div class="toast" id="toast" role="status"></div>
+  <script>
+    (() => {
+      const STORAGE_KEY = 'shiri-journal-v1';
+      const builtInCategories = ['工作', '学习', '生活', '灵感', '健康'];
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const dateKey = (date) => {
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const d = String(date.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+      };
+      const shiftDate = (date, amount) => { const next = new Date(date); next.setDate(next.getDate() + amount); return next; };
+      const parseDate = (key) => { const [y, m, d] = key.split('-').map(Number); return new Date(y, m - 1, d); };
+      const weekday = (date) => ['周日', '周一', '周二', '周三', '周四', '周五', '周六'][date.getDay()];
+      const fullDate = (date) => `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日 ${weekday(date)}`;
+      const formatDuration = (minutes) => {
+        const total = Math.max(0, Number(minutes) || 0);
+        return `${Math.floor(total / 60)}时${String(total % 60).padStart(2, '0')}分`;
+      };
+      const startOfWeek = (date) => { const copy = new Date(date); copy.setDate(copy.getDate() - ((copy.getDay() + 6) % 7)); copy.setHours(0, 0, 0, 0); return copy; };
+      const sampleDate = (offset) => dateKey(shiftDate(today, offset));
+      const seed = [
+        { id: 'sample-1', date: sampleDate(-4), time: '09:20', title: '整理本周的项目目标和优先级', detail: '把几个关键节点拆成可以逐步推进的小块。', tag: '工作', project: '季度计划', duration: 35 },
+        { id: 'sample-2', date: sampleDate(-3), time: '14:10', title: '读完产品设计章节，记下三个想法', detail: '关于减少输入步骤的部分很有启发。', tag: '学习', project: '阅读', duration: 50 },
+        { id: 'sample-3', date: sampleDate(-2), time: '11:30', title: '完成数据看板的第一版', detail: '确认核心指标口径，并和同事对齐展示顺序。', tag: '工作', project: '数据看板', duration: 90 },
+        { id: 'sample-4', date: sampleDate(-1), time: '18:40', title: '散步半小时，顺手买了晚餐食材', detail: '', tag: '生活', project: '', duration: 30 },
+        { id: 'sample-5', date: sampleDate(0), time: '09:15', title: '梳理本周重点，确定今天先完成的两件事', detail: '把需要集中精力的工作安排在上午。', tag: '工作', project: '每日计划', duration: 20 },
+        { id: 'sample-6', date: sampleDate(0), time: '11:05', title: '完成方案初稿并发给团队收集意见', detail: '先把结构和关键结论写清楚，细节留到下一轮完善。', tag: '工作', project: '产品方案', duration: 80 },
+        { id: 'sample-7', date: sampleDate(0), time: '13:30', title: '记下一个新想法：给每周回顾加上主题', detail: '回顾不只统计做了多少，也能看出这一周围绕什么展开。', tag: '灵感', project: '', duration: 10 }
+      ];
+      let state;
+      try { state = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null'); } catch (_) { state = null; }
+      if (!state || !Array.isArray(state.entries)) state = { entries: seed, notes: {} };
+      state.notes ||= {};
+      state.categories = Array.isArray(state.categories) ? state.categories.filter((category) => typeof category === 'string' && category.trim()) : [];
+      let categories = [...new Set([...builtInCategories, ...state.categories, ...state.entries.map((entry) => String(entry.tag || '').trim()).filter(Boolean)])];
+      state.categories = categories.filter((category) => !builtInCategories.includes(category));
+      let selectedDate = new Date(today);
+      let view = 'calendar';
+      let activeTag = '全部';
+      let searchTerm = '';
+      let editingEntryId = '';
+      const root = document.getElementById('viewRoot');
+      const toast = document.getElementById('toast');
+      const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+      const persist = () => localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      const entriesFor = (key) => state.entries.filter((entry) => entry.date === key).sort((a, b) => a.time.localeCompare(b.time));
+      const rangeEntries = (start, end) => state.entries.filter((entry) => entry.date >= dateKey(start) && entry.date <= dateKey(end));
+      const periodKey = () => view === 'week' ? `week-${dateKey(startOfWeek(selectedDate))}` : `month-${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}`;
+      const periodDate = (date) => `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日`;
+      const monthKeyFor = (date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      const weekOwnerMonth = (start) => shiftDate(start, 3);
+      const availableWeeks = () => {
+        const keys = new Set([dateKey(startOfWeek(today)), dateKey(startOfWeek(selectedDate))]);
+        state.entries.forEach((entry) => keys.add(dateKey(startOfWeek(parseDate(entry.date)))));
+        Object.keys(state.notes).forEach((key) => { const match = key.match(/^week-(\d{4}-\d{2}-\d{2})$/); if (match) keys.add(match[1]); });
+        return [...keys].sort((a, b) => b.localeCompare(a)).map((key) => parseDate(key));
+      };
+      const availableMonths = () => {
+        const keys = new Set([monthKeyFor(today), monthKeyFor(selectedDate)]);
+        state.entries.forEach((entry) => keys.add(entry.date.slice(0, 7)));
+        Object.keys(state.notes).forEach((key) => { const match = key.match(/^month-(\d{4}-\d{2})$/); if (match) keys.add(match[1]); });
+        return [...keys].sort((a, b) => b.localeCompare(a));
+      };
+      const showToast = (message) => {
+        toast.textContent = message;
+        toast.classList.add('show');
+        clearTimeout(showToast.timer);
+        showToast.timer = setTimeout(() => toast.classList.remove('show'), 1800);
+      };
+      const syncCategories = () => {
+        categories = [...new Set([...builtInCategories, ...state.categories, ...state.entries.map((entry) => String(entry.tag || '').trim()).filter(Boolean)])];
+        state.categories = categories.filter((category) => !builtInCategories.includes(category));
+      };
+      const renderCategoryManager = () => {
+        const list = document.getElementById('categoryManagerList');
+        if (!list) return;
+        list.innerHTML = categories.map((category) => {
+          const builtIn = builtInCategories.includes(category);
+          const usage = state.entries.filter((entry) => entry.tag === category).length;
+          const locked = builtIn || usage > 0;
+          return `<div class="category-row"><span>${escapeHtml(category)}${builtIn ? '<small>默认</small>' : usage ? `<small>${usage} 条记录正在使用</small>` : '<small>自定义</small>'}</span><button class="category-delete" type="button" data-remove-category="${escapeHtml(category)}" ${locked ? 'disabled title="默认分类或已使用分类不能删除"' : 'title="删除分类"'}>删除</button></div>`;
+        }).join('');
+        list.querySelectorAll('[data-remove-category]').forEach((button) => button.addEventListener('click', () => {
+          const category = button.dataset.removeCategory;
+          state.categories = state.categories.filter((item) => item !== category);
+          syncCategories();
+          persist();
+          renderCategoryManager();
+          render();
+        }));
+      };
+      const openCategoryManager = () => {
+        renderCategoryManager();
+        document.getElementById('categoryDialog').showModal();
+        document.getElementById('newCategoryInput').focus();
+      };
+      const addCategory = () => {
+        const input = document.getElementById('newCategoryInput');
+        const category = input.value.trim();
+        if (!category) { input.focus(); return; }
+        if (categories.includes(category)) { showToast('这个分类已经存在'); input.select(); return; }
+        state.categories.push(category);
+        syncCategories();
+        persist();
+        input.value = '';
+        renderCategoryManager();
+        render();
+        input.focus();
+        showToast('已添加自定义分类');
+      };
+      const renderRecentEntries = () => {
+        const list = document.getElementById('recentEntries');
+        if (!list) return;
+        const scrollTop = list.scrollTop;
+        const recent = state.entries.slice().sort((a, b) => b.date.localeCompare(a.date) || String(b.time || '').localeCompare(String(a.time || ''))).slice(0, 100);
+        list.innerHTML = recent.length ? recent.map((entry) => `<button class="recent-entry" type="button" data-open-entry="${escapeHtml(entry.id)}" title="${escapeHtml(entry.title)}"><span class="recent-entry-date">${parseDate(entry.date).getMonth() + 1}月${parseDate(entry.date).getDate()}日 ${weekday(parseDate(entry.date))} · ${escapeHtml(entry.time || '全天')}</span><span class="recent-entry-title">${escapeHtml(entry.title)}</span></button>`).join('') : '<div class="recent-entry-empty">还没有记录</div>';
+        list.scrollTop = scrollTop;
+      };
+      const renderSearchResults = () => {
+        const normalized = searchTerm.trim().toLowerCase();
+        const matched = state.entries.slice().filter((entry) => {
+          const haystack = [entry.title, entry.detail, entry.project, entry.tag, entry.date, entry.time].map((value) => String(value || '')).join(' ').toLowerCase();
+          return haystack.includes(normalized);
+        }).sort((a, b) => b.date.localeCompare(a.date) || String(b.time || '').localeCompare(String(a.time || '')));
+        root.innerHTML = `<section class="search-results-panel"><div class="section-title"><h2>搜索记录</h2><span class="section-hint">${matched.length} 条结果</span></div>${matched.length ? `<div class="search-result-list">${matched.map((entry) => { const date = parseDate(entry.date); return `<button type="button" class="search-result" data-open-entry="${escapeHtml(entry.id)}"><span class="search-result-date">${periodDate(date)} ${weekday(date)} · ${escapeHtml(entry.time || '全天')}</span><span class="search-result-title">${escapeHtml(entry.title)}</span>${entry.detail ? `<span class="search-result-detail">${escapeHtml(entry.detail)}</span>` : ''}<span class="search-result-meta"><span>${escapeHtml(entry.tag || '未分类')}</span>${Number(entry.duration || 0) ? `<span>${formatDuration(entry.duration)}</span>` : ''}</span></button>`; }).join('')}</div>` : '<div class="empty-state"><div class="empty-symbol">⌕</div>没有找到匹配的记录<br>可以试试标题、内容或分类关键词。</div>'}</section>`;
+      };
+      const openDay = (key, entryId = '') => {
+        selectedDate = parseDate(key);
+        view = 'day';
+        editingEntryId = '';
+        activeTag = '全部';
+        searchTerm = '';
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) searchInput.value = '';
+        render();
+        if (entryId) setTimeout(() => document.querySelector(`[data-entry-card="${CSS.escape(entryId)}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 40);
+        else window.scrollTo({ top: 0, behavior: 'smooth' });
+      };
+      const navLabel = { calendar: '日记录', day: '日记录', week: '周记录', month: '月记录' };
+      const updateHeader = () => {
+        document.getElementById('crumbLabel').textContent = navLabel[view];
+        document.getElementById('eyebrow').textContent = navLabel[view];
+        document.getElementById('sideDate').textContent = `${today.getFullYear()}年${today.getMonth() + 1}月`;
+        const title = document.getElementById('pageTitle');
+        const subtitle = document.getElementById('pageSubtitle');
+        document.getElementById('backToCalendar').hidden = view !== 'day';
+        if (view === 'day') {
+          title.textContent = dateKey(selectedDate) === dateKey(today) ? '今天做了什么？' : `${selectedDate.getMonth() + 1}月${selectedDate.getDate()}日，做了什么？`;
+          subtitle.textContent = fullDate(selectedDate);
+        } else if (view === 'week') {
+          const start = startOfWeek(selectedDate); const end = shiftDate(start, 6);
+          title.textContent = '这一周，做了些什么？';
+          const owner = weekOwnerMonth(start);
+          subtitle.textContent = `${periodDate(start)}-${periodDate(end)} · 隶属于${owner.getFullYear()}年${owner.getMonth() + 1}月`;
+        } else if (view === 'month') {
+          title.textContent = `${selectedDate.getFullYear()}年${selectedDate.getMonth() + 1}月记录`;
+          subtitle.textContent = '回顾这个月的进展、收获和想法';
+        } else {
+          title.textContent = `${selectedDate.getFullYear()}年${selectedDate.getMonth() + 1}月`;
+          subtitle.textContent = '点击日期，查看或记录当天发生的事';
+        }
+        const previousLabel = view === 'day' ? '前一天' : view === 'week' ? '上一周' : '上一个月';
+        const nextLabel = view === 'day' ? '后一天' : view === 'week' ? '下一周' : '下一个月';
+        document.getElementById('previousDate').setAttribute('aria-label', previousLabel);
+        document.getElementById('nextDate').setAttribute('aria-label', nextLabel);
+        document.querySelectorAll('[data-view]').forEach((button) => button.classList.toggle('active', button.dataset.view === view || (view === 'day' && button.dataset.view === 'calendar')));
+      };
+      const entryCard = (entry) => `<article class="entry-card" data-entry-card="${escapeHtml(entry.id)}"><div class="entry-time">${escapeHtml(entry.time || '全天')}</div><div class="entry-body"><div class="entry-title">${escapeHtml(entry.title)}</div>${entry.detail ? `<div class="entry-detail">${escapeHtml(entry.detail)}</div>` : ''}<div class="entry-meta"><span class="tag tag-${escapeHtml(entry.tag)}">${escapeHtml(entry.tag)}</span>${entry.project ? `<span class="entry-project">${escapeHtml(entry.project)}</span>` : ''}${Number(entry.duration || 0) ? `<span class="entry-duration">${formatDuration(entry.duration)}</span>` : ''}</div></div><div class="entry-actions"><button class="edit-entry" type="button" data-edit="${escapeHtml(entry.id)}" title="修改记录" aria-label="修改记录"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m4 16-.8 4.8L8 20l11.2-11.2a2.8 2.8 0 0 0-4-4L4 16Z"/><path d="m13.5 6.5 4 4"/></svg></button><button class="delete-entry" type="button" data-delete="${escapeHtml(entry.id)}" title="删除记录" aria-label="删除记录"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M5.5 7l1 13h11l1-13M9 7V4h6v3"/></svg></button></div></article>`;
+      const renderDay = () => {
+        const dayEntries = entriesFor(dateKey(selectedDate));
+        const matched = dayEntries.filter((entry) => (activeTag === '全部' || entry.tag === activeTag) && (!searchTerm || `${entry.title} ${entry.detail} ${entry.project} ${entry.tag}`.toLowerCase().includes(searchTerm.toLowerCase())));
+        const totalMinutes = dayEntries.reduce((sum, entry) => sum + Number(entry.duration || 0), 0);
+        const editingEntry = state.entries.find((entry) => entry.id === editingEntryId && entry.date === dateKey(selectedDate));
+        const editingMinutes = Number(editingEntry?.duration || 0);
+        const editingHours = Math.floor(editingMinutes / 60);
+        const editingRemainder = editingMinutes % 60;
+        const target = 240;
+        const weekStart = startOfWeek(selectedDate);
+        const weekDays = Array.from({ length: 7 }, (_, index) => shiftDate(weekStart, index));
+        root.innerHTML = `<div class="content-grid"><div class="primary-column"><div class="list-head"><h2>当天记录</h2><span class="entry-count">${matched.length} 条记录</span></div><div class="filter-row"><button class="filter-chip ${activeTag === '全部' ? 'active' : ''}" data-tag="全部">全部</button>${categories.map((c) => `<button class="filter-chip ${activeTag === c ? 'active' : ''}" data-tag="${escapeHtml(c)}">${escapeHtml(c)}</button>`).join('')}</div><div class="entry-list">${matched.length ? matched.map(entryCard).join('') : `<div class="empty-state"><div class="empty-symbol">＋</div>${dayEntries.length ? '没有符合条件的记录' : '这一天还没有记录'}<br>有值得记下的事时，随时写一笔。</div>`}</div><section class="composer"><div class="section-title"><h2>快速记录</h2><span class="section-hint">${editingEntry ? '正在修改这条记录' : '写下今天做过的一件事'}</span></div><label class="entry-field-label" for="entryTitle">标题</label><input class="entry-title-input" id="entryTitle" type="text" maxlength="120" placeholder="这件事的标题" aria-label="记录标题" value="${escapeHtml(editingEntry?.title || '')}"><label class="entry-field-label" for="entryText">内容</label><textarea class="entry-input" id="entryText" aria-label="记录内容" placeholder="例如：完成了什么、有什么进展，或一个突然想到的点子…">${escapeHtml(editingEntry?.detail || '')}</textarea><div class="composer-footer"><div class="entry-options"><select id="entryTag" class="select-control" aria-label="记录分类">${categories.map((c) => `<option value="${escapeHtml(c)}" ${c === (editingEntry?.tag || categories[0]) ? 'selected' : ''}>${escapeHtml(c)}</option>`).join('')}</select><button class="category-manage" type="button" data-action="manage-categories">管理分类</button><div class="duration-fields" aria-label="耗时"><input id="entryDurationHours" type="number" min="0" max="24" value="${editingEntry ? editingHours : ''}" placeholder="时" aria-label="耗时小时"><span>时</span><input id="entryDurationMinutes" type="number" min="0" max="59" value="${editingEntry ? editingRemainder : ''}" placeholder="分" aria-label="耗时分钟"><span>分</span></div></div><div class="entry-submit-actions"><button class="save-entry" id="saveEntry"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>${editingEntry ? '保存修改' : '添加记录'}</button>${editingEntry ? '<button class="cancel-edit" id="cancelEdit" type="button">取消</button>' : ''}</div></div></section></div><aside class="insight-column"><section class="side-panel"><div class="section-title"><h2>今天概览</h2><span class="section-hint">${selectedDate.getMonth() + 1}月${selectedDate.getDate()}日</span></div><div class="today-stat"><div class="stat-box"><div class="stat-value">${dayEntries.length}</div><div class="stat-label">条记录</div></div><div class="stat-box"><div class="stat-value">${formatDuration(totalMinutes)}</div><div class="stat-label">记录的投入</div></div></div><div class="progress-track"><div class="progress-fill" style="width:${Math.min(100, Math.round(totalMinutes / target * 100))}%"></div></div><div class="progress-note"><span>记录时长</span><span>${Math.min(100, Math.round(totalMinutes / target * 100))}%</span></div></section><section class="side-panel"><h2>这一周</h2><div class="week-mini">${weekDays.map((day) => { const count = entriesFor(dateKey(day)).length; return `<div class="week-row"><span>${weekday(day).slice(1)}</span><div class="week-track"><div class="week-fill" style="width:${Math.min(100, count * 22)}%"></div></div><span class="week-total">${count || '—'}</span></div>`; }).join('')}</div></section><section class="side-panel quote-panel"><h2>留一点空白</h2><div class="quote-mark">“</div><div class="quote-text">不必把每一刻都填满。记下真实发生的事，就已经很好。</div><div class="quote-source">给今天的自己</div></section></aside></div>`;
+        document.getElementById('saveEntry').addEventListener('click', addEntry);
+        document.getElementById('entryTitle').addEventListener('keydown', (event) => { if (event.key === 'Enter') addEntry(); });
+        document.getElementById('entryText').addEventListener('keydown', (event) => { if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') addEntry(); });
+        document.getElementById('entryDurationHours').addEventListener('keydown', (event) => { if (event.key === 'Enter') addEntry(); });
+        document.getElementById('entryDurationMinutes').addEventListener('keydown', (event) => { if (event.key === 'Enter') addEntry(); });
+        document.getElementById('cancelEdit')?.addEventListener('click', cancelEditing);
+        root.querySelectorAll('[data-tag]').forEach((button) => button.addEventListener('click', () => { activeTag = button.dataset.tag; render(); }));
+        root.querySelectorAll('[data-edit]').forEach((button) => button.addEventListener('click', () => startEditing(button.dataset.edit)));
+        root.querySelectorAll('[data-delete]').forEach((button) => button.addEventListener('click', () => deleteEntry(button.dataset.delete)));
+        root.querySelector('.insight-column').insertAdjacentHTML('beforeend', renderTimeStats(dayEntries, 'day'));
+        bindTimeStats();
+      };
+      const startEditing = (id) => {
+        const entry = state.entries.find((item) => item.id === id);
+        if (!entry) return;
+        selectedDate = parseDate(entry.date);
+        view = 'day';
+        editingEntryId = id;
+        activeTag = '全部';
+        render();
+        document.getElementById('entryTitle')?.focus();
+        document.querySelector('.composer')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      };
+      const cancelEditing = () => { editingEntryId = ''; renderDay(); };
+      const tagCounts = (entries) => categories.map((tag) => ({ tag, count: entries.filter((entry) => entry.tag === tag).length })).filter((item) => item.count).sort((a, b) => b.count - a.count);
+      const renderTagSummary = (entries) => {
+        const counts = tagCounts(entries); const max = Math.max(1, ...counts.map((x) => x.count));
+        return counts.length ? `<div class="tag-summary">${counts.map(({tag, count}) => `<div class="tag-summary-row"><span class="tag tag-${tag}">${tag}</span><div class="tag-summary-track"><div class="tag-summary-fill" style="width:${Math.round(count/max*100)}%"></div></div><span class="tag-summary-count">${count}</span></div>`).join('')}</div>` : `<div class="empty-state">还没有分类记录</div>`;
+      };
+      const renderAutoSummary = (entries, mode = 'date') => {
+        const sorted = entries.slice().sort((a, b) => a.date.localeCompare(b.date) || String(a.time || '').localeCompare(String(b.time || '')));
+        const groups = mode === 'date'
+          ? [...new Set(sorted.map((entry) => entry.date))].map((date) => ({ label: `${periodDate(parseDate(date))} ${weekday(parseDate(date))}`, entries: sorted.filter((entry) => entry.date === date) }))
+          : [...new Set([...categories, ...sorted.map((entry) => entry.tag || '未分类')])].map((tag) => ({ label: tag, entries: sorted.filter((entry) => (entry.tag || '未分类') === tag) })).filter((group) => group.entries.length);
+        if (!groups.length) return `<div class="empty-state">这个周期还没有日记录，写下每天发生的事后，这里会自动汇总。</div>`;
+        return `<div class="auto-summary">${groups.map(({label, entries: items}) => `<section class="auto-summary-group"><h3>${escapeHtml(label)} · ${items.length} 件</h3><div class="auto-summary-list">${items.map((entry) => { const date = parseDate(entry.date); return `<button type="button" class="auto-summary-item ${mode === 'date' ? 'date-mode' : ''}" data-open-entry="${escapeHtml(entry.id)}"><span class="auto-summary-date">${mode === 'date' ? '' : `${periodDate(date)} ${weekday(date)}`}</span><span class="auto-summary-content"><span class="auto-summary-title">${escapeHtml(entry.title)}</span>${entry.detail ? `<span class="auto-summary-detail"> · ${escapeHtml(entry.detail)}</span>` : ''}</span></button>`; }).join('')}</div></section>`).join('')}</div>`;
+      };
+      const renderAutoSummaryControls = (entries) => `<div class="summary-mode-switch" role="group" aria-label="自动汇总查看方式"><button class="summary-mode-button active" type="button" data-summary-mode="date" aria-pressed="true">按日期查看</button><button class="summary-mode-button" type="button" data-summary-mode="type" aria-pressed="false">按类型查看</button></div><div class="auto-summary-content-root">${renderAutoSummary(entries, 'date')}</div>`;
+      const bindAutoSummaryControls = (entries) => {
+        root.querySelectorAll('[data-summary-mode]').forEach((button) => button.addEventListener('click', () => {
+          const mode = button.dataset.summaryMode;
+          root.querySelectorAll('[data-summary-mode]').forEach((item) => {
+            const active = item === button;
+            item.classList.toggle('active', active);
+            item.setAttribute('aria-pressed', String(active));
+          });
+          root.querySelector('.auto-summary-content-root').innerHTML = renderAutoSummary(entries, mode);
+        }));
+      };
+      const renderTimeStats = (entries, id) => {
+        const groups = [...new Set([...categories, ...entries.map((entry) => entry.tag || '未分类')])].map((tag) => {
+          const items = entries.filter((entry) => (entry.tag || '未分类') === tag && Number(entry.duration || 0) > 0)
+            .slice().sort((a, b) => Number(b.duration || 0) - Number(a.duration || 0) || a.date.localeCompare(b.date) || String(a.time || '').localeCompare(String(b.time || '')));
+          return { tag, items, minutes: items.reduce((sum, entry) => sum + Number(entry.duration || 0), 0) };
+        }).filter((group) => group.minutes > 0);
+        const rows = groups.length ? groups.map(({tag, items, minutes}, index) => `<div class="time-stat-group"><button class="time-stat-row" type="button" data-time-group="${id}-${index}" aria-expanded="false"><span class="time-stat-label">${escapeHtml(tag)}</span><span class="time-stat-count">${items.length} 项</span><span class="time-stat-total">${formatDuration(minutes)}</span></button><div class="time-stat-details" data-time-details="${id}-${index}" hidden>${items.map((entry) => `<button type="button" class="time-stat-detail" data-open-entry="${escapeHtml(entry.id)}"><span class="time-stat-detail-title">${escapeHtml(entry.title)} · ${periodDate(parseDate(entry.date))}</span><span class="time-stat-detail-time">${formatDuration(entry.duration)}</span></button>`).join('')}</div></div>`).join('') : '<div class="time-stats-empty">当前周期还没有填写投入时间的记录。</div>';
+        return `<section class="period-panel time-stats"><div class="section-title"><h2>投入时间统计</h2><span class="section-hint">按活动类型</span></div><div class="time-stat-list">${rows}</div></section>`;
+      };
+      const bindTimeStats = () => root.querySelectorAll('[data-time-group]').forEach((button) => button.addEventListener('click', () => {
+        const details = root.querySelector(`[data-time-details="${button.dataset.timeGroup}"]`);
+        const expanded = button.getAttribute('aria-expanded') === 'true';
+        button.setAttribute('aria-expanded', String(!expanded));
+        details.hidden = expanded;
+      }));
+      const renderPeriodHistory = (type) => {
+        const isWeek = type === 'week';
+        const periods = isWeek ? availableWeeks() : availableMonths();
+        const selectedKey = isWeek ? dateKey(startOfWeek(selectedDate)) : monthKeyFor(selectedDate);
+        const options = isWeek ? periods.map((start) => {
+          const end = shiftDate(start, 6);
+          const owner = weekOwnerMonth(start);
+          const count = rangeEntries(start, end).length;
+          const label = `${periodDate(start)}-${periodDate(end)} · 隶属于${owner.getFullYear()}年${owner.getMonth() + 1}月${count ? ` · ${count} 条记录` : state.notes[`week-${dateKey(start)}`] ? ' · 有回顾' : ' · 当前周期'}`;
+          return `<option value="${dateKey(start)}" ${dateKey(start) === selectedKey ? 'selected' : ''}>${label}</option>`;
+        }) : periods.map((key) => {
+          const [year, month] = key.split('-').map(Number);
+          const count = state.entries.filter((entry) => entry.date.startsWith(key)).length;
+          const label = `${year}年${month}月${count ? ` · ${count} 条记录` : state.notes[`month-${key}`] ? ' · 有回顾' : ' · 当前周期'}`;
+          return `<option value="${key}" ${key === selectedKey ? 'selected' : ''}>${label}</option>`;
+        });
+        return `<div class="period-history-wrap"><div class="period-history"><label for="periodHistory">${isWeek ? '已记录的周' : '已记录的月份'}<select id="periodHistory" aria-label="选择${isWeek ? '周记录' : '月记录'}">${options.join('')}</select></label></div></div>`;
+      };
+      const renderMetricCards = (entries, activeDays, minutes) => `<div class="metric-grid"><button type="button" class="metric metric-button" data-metric="records" aria-label="查看记录总数明细"><div class="metric-value">${entries.length}</div><div class="metric-label">记录总数 · 点击查看</div></button><button type="button" class="metric metric-button" data-metric="days" aria-label="查看有记录的日期"><div class="metric-value">${activeDays}</div><div class="metric-label">有记录的天数 · 点击查看</div></button><button type="button" class="metric metric-button" data-metric="time" aria-label="查看投入时间明细"><div class="metric-value">${formatDuration(minutes)}</div><div class="metric-label">记录的投入时间 · 点击查看</div></button></div><section class="period-panel metric-details" id="metricDetails" hidden></section>`;
+      const renderMetricDetails = (type, entries) => {
+        const panel = document.getElementById('metricDetails');
+        const sorted = entries.slice().sort((a, b) => a.date.localeCompare(b.date) || String(a.time || '').localeCompare(String(b.time || '')));
+        let title = '记录明细';
+        let rows = [];
+        if (type === 'days') {
+          title = '有记录的日期';
+          const byDate = new Map();
+          sorted.forEach((entry) => byDate.set(entry.date, (byDate.get(entry.date) || 0) + 1));
+          rows = [...byDate].map(([date, count]) => {
+            const parsed = parseDate(date);
+            return `<button type="button" class="metric-detail-row" data-open-date="${date}"><span class="metric-detail-title">${periodDate(parsed)} ${weekday(parsed)}</span><span class="metric-detail-meta">${count} 条</span></button>`;
+          });
+        } else {
+          title = type === 'time' ? '投入时间明细' : '全部记录明细';
+          const details = type === 'time' ? sorted.slice().sort((a, b) => Number(b.duration || 0) - Number(a.duration || 0) || a.date.localeCompare(b.date)) : sorted;
+          rows = details.map((entry) => {
+            const parsed = parseDate(entry.date);
+            const meta = `${periodDate(parsed)} ${weekday(parsed)} · ${entry.time || '全天'} · ${escapeHtml(entry.tag || '未分类')}`;
+            const time = Number(entry.duration || 0) ? formatDuration(entry.duration) : '未记时';
+            return `<button type="button" class="metric-detail-row" data-open-entry="${escapeHtml(entry.id)}"><span class="metric-detail-title">${escapeHtml(entry.title)}</span><span class="metric-detail-meta">${type === 'time' ? time : ''}</span><span class="metric-detail-meta">${meta}</span><span class="metric-detail-meta">${type === 'time' ? '' : time}</span>${entry.detail ? `<span class="metric-detail-meta" style="grid-column:1/-1">${escapeHtml(entry.detail)}</span>` : ''}</button>`;
+          });
+        }
+        panel.innerHTML = `<div class="section-title"><h2>${title}</h2><span class="section-hint">${rows.length} 项</span></div>${rows.length ? `<div class="metric-detail-list">${rows.join('')}</div>` : '<div class="empty-state">这个周期还没有可查看的记录。</div>'}`;
+        panel.hidden = false;
+        panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      };
+      const bindPeriodControls = (entries, type) => {
+        document.getElementById('periodHistory').addEventListener('change', (event) => {
+          selectedDate = type === 'week' ? parseDate(event.target.value) : parseDate(`${event.target.value}-01`);
+          render();
+        });
+        root.querySelectorAll('[data-metric]').forEach((button) => button.addEventListener('click', () => {
+          const panel = document.getElementById('metricDetails');
+          const wasOpen = !panel.hidden && button.classList.contains('active');
+          root.querySelectorAll('[data-metric]').forEach((item) => item.classList.remove('active'));
+          if (wasOpen) { panel.hidden = true; return; }
+          button.classList.add('active');
+          renderMetricDetails(button.dataset.metric, entries);
+        }));
+      };
+      const renderCalendar = () => {
+        const year = selectedDate.getFullYear(); const month = selectedDate.getMonth();
+        const first = new Date(year, month, 1); const offset = (first.getDay() + 6) % 7;
+        const gridStart = shiftDate(first, -offset);
+        const days = Array.from({ length: 42 }, (_, index) => shiftDate(gridStart, index));
+        root.innerHTML = `<div class="calendar-page"><div class="section-title"><h2>日记录</h2><span class="calendar-help">有圆点表示当天有记录</span></div><div class="calendar">${['一','二','三','四','五','六','日'].map((day) => `<div class="calendar-head">${day}</div>`).join('')}${days.map((day) => { const key = dateKey(day); const count = entriesFor(key).length; const outside = day.getMonth() !== month; return `<button class="calendar-day ${outside ? 'outside' : ''} ${key === dateKey(today) ? 'today' : ''} ${key === dateKey(selectedDate) ? 'selected' : ''}" data-date="${key}" aria-label="${day.getFullYear()}年${day.getMonth()+1}月${day.getDate()}日，${count} 条记录"><span class="calendar-num">${day.getDate()}</span>${count ? `<div class="calendar-dots"><span class="calendar-dot"></span>${count > 1 ? '<span class="calendar-dot"></span>' : ''}${count > 2 ? '<span class="calendar-dot"></span>' : ''}</div><div class="calendar-count">${count} 条</div>` : ''}</button>`; }).join('')}</div></div>`;
+        root.querySelectorAll('[data-date]').forEach((button) => button.addEventListener('click', () => { selectedDate = parseDate(button.dataset.date); view = 'day'; render(); window.scrollTo({ top: 0, behavior: 'smooth' }); }));
+      };
+      const renderWeek = () => {
+        const start = startOfWeek(selectedDate); const end = shiftDate(start, 6); const entries = rangeEntries(start, end);
+        const days = Array.from({ length: 7 }, (_, i) => shiftDate(start, i));
+        const activeDays = days.filter((day) => entriesFor(dateKey(day)).length).length;
+        const minutes = entries.reduce((sum, entry) => sum + Number(entry.duration || 0), 0);
+        const max = Math.max(1, ...days.map((day) => entriesFor(dateKey(day)).length));
+        const key = `week-${dateKey(start)}`; const savedNote = state.notes[key] || '';
+        const owner = weekOwnerMonth(start);
+        const recent = entries.slice().sort((a, b) => b.date.localeCompare(a.date) || String(b.time || '').localeCompare(String(a.time || ''))).slice(0, 4);
+        const summaryPanel = `<section class="period-panel period-summary-top"><div class="section-title"><h2>本周自动汇总</h2><span class="section-hint">根据 ${entries.length} 条日记录整理</span></div>${renderAutoSummaryControls(entries)}<label class="reflection-label" for="summaryInput">补充本周感想</label><textarea class="summary-input" id="summaryInput" placeholder="这一周的收获、挑战，或想带到下周的想法……">${escapeHtml(savedNote)}</textarea><button class="summary-save" id="saveSummary">保存感想</button><span class="summary-status" id="summaryStatus"></span></section>`;
+        root.innerHTML = `${renderPeriodHistory('week')}${summaryPanel}<div class="period-layout"><div class="period-main"><section class="period-banner"><div><h2>${periodDate(start)}-${periodDate(end)}</h2><p>隶属于${owner.getFullYear()}年${owner.getMonth() + 1}月 · 本周有 ${entries.length} 件事值得记住</p></div><div class="banner-count"><strong>${activeDays}<span style="font-size:12px;font-weight:500"> / 7</span></strong><span>有记录的天数</span></div></section>${renderMetricCards(entries, activeDays, minutes)}<section class="period-panel"><div class="section-title"><h2>每天的节奏</h2><span class="section-hint">按记录条数</span></div><div class="day-bars">${days.map((day) => { const count = entriesFor(dateKey(day)).length; return `<div class="day-bar-row"><span class="day-name">${weekday(day)} ${day.getMonth() + 1}/${day.getDate()}</span><div class="day-bar-track"><div class="day-bar-fill" style="width:${count ? Math.max(4, Math.round(count / max * 100)) : 0}%"></div></div><span class="day-bar-count">${count || '—'}</span></div>`; }).join('')}</div></section></div><aside class="period-aside"><section class="period-panel"><div class="section-title"><h2>记录分布</h2><span class="section-hint">按分类</span></div>${renderTagSummary(entries)}</section><section class="period-panel"><div class="section-title"><h2>最近几条</h2><span class="section-hint">${Math.min(entries.length, 4)} 条</span></div><div class="mini-records">${recent.map((entry) => `<button type="button" class="mini-record" data-open-entry="${escapeHtml(entry.id)}"><span class="mini-record-title">${escapeHtml(entry.title)}</span><span class="mini-record-meta">${periodDate(parseDate(entry.date))} ${weekday(parseDate(entry.date))} · ${escapeHtml(entry.tag)}</span></button>`).join('') || '<div class="section-hint">记录几件小事，这里就会慢慢丰富起来。</div>'}</div></section></aside></div>`;
+        root.querySelector('.period-main').insertAdjacentHTML('beforeend', renderTimeStats(entries, 'week'));
+        bindPeriodControls(entries, 'week');
+        bindAutoSummaryControls(entries);
+        bindTimeStats();
+        document.getElementById('saveSummary').addEventListener('click', () => { state.notes[key] = document.getElementById('summaryInput').value.trim(); persist(); document.getElementById('summaryStatus').textContent = '已保存'; renderRecentEntries(); });
+      };
+      const renderMonth = () => {
+        const year = selectedDate.getFullYear(); const month = selectedDate.getMonth();
+        const monthEntries = state.entries.filter((entry) => { const d = parseDate(entry.date); return d.getFullYear() === year && d.getMonth() === month; });
+        const activeDays = new Set(monthEntries.map((entry) => entry.date)).size;
+        const minutes = monthEntries.reduce((sum, entry) => sum + Number(entry.duration || 0), 0);
+        const key = `month-${monthKeyFor(selectedDate)}`; const savedNote = state.notes[key] || '';
+        const recent = monthEntries.slice().sort((a, b) => b.date.localeCompare(a.date) || String(b.time || '').localeCompare(String(a.time || ''))).slice(0, 5);
+        const summaryPanel = `<section class="period-panel period-summary-top"><div class="section-title"><h2>本月自动汇总</h2><span class="section-hint">根据 ${monthEntries.length} 条日记录整理</span></div>${renderAutoSummaryControls(monthEntries)}<label class="reflection-label" for="summaryInput">补充本月感想</label><textarea class="summary-input" id="summaryInput" placeholder="这个月的重要进展、收获，或想带到下个月的想法……">${escapeHtml(savedNote)}</textarea><button class="summary-save" id="saveSummary">保存感想</button><span class="summary-status" id="summaryStatus"></span></section>`;
+        root.innerHTML = `${renderPeriodHistory('month')}${summaryPanel}<div class="period-layout"><div class="period-main"><section class="period-banner"><div><h2>${year}年${month + 1}月记录</h2><p>按分类整理日记录，回看本月的进展和收获</p></div><div class="banner-count"><strong>${monthEntries.length}</strong><span>条记录</span></div></section>${renderMetricCards(monthEntries, activeDays, minutes)}</div><aside class="period-aside"><section class="period-panel"><div class="section-title"><h2>记录分布</h2><span class="section-hint">按分类</span></div>${renderTagSummary(monthEntries)}</section><section class="period-panel"><div class="section-title"><h2>本月片段</h2><span class="section-hint">${Math.min(monthEntries.length, 5)} 条</span></div><div class="mini-records">${recent.map((entry) => `<button type="button" class="mini-record" data-open-entry="${escapeHtml(entry.id)}"><span class="mini-record-title">${escapeHtml(entry.title)}</span><span class="mini-record-meta">${periodDate(parseDate(entry.date))} ${weekday(parseDate(entry.date))} · ${escapeHtml(entry.tag)}</span></button>`).join('') || '<div class="section-hint">这段时间还没有留下记录。</div>'}</div></section></aside></div>`;
+        root.querySelector('.period-main').insertAdjacentHTML('beforeend', renderTimeStats(monthEntries, 'month'));
+        bindPeriodControls(monthEntries, 'month');
+        bindAutoSummaryControls(monthEntries);
+        bindTimeStats();
+        document.getElementById('saveSummary').addEventListener('click', () => { state.notes[key] = document.getElementById('summaryInput').value.trim(); persist(); document.getElementById('summaryStatus').textContent = '已保存'; renderRecentEntries(); });
+      };
+      const render = () => { updateHeader(); renderRecentEntries(); if (searchTerm.trim()) renderSearchResults(); else if (view === 'day') renderDay(); else if (view === 'week') renderWeek(); else if (view === 'month') renderMonth(); else renderCalendar(); };
+      const addEntry = () => {
+        const titleField = document.getElementById('entryTitle');
+        const contentField = document.getElementById('entryText');
+        const title = titleField.value.trim();
+        const content = contentField.value.trim();
+        if (!title) { titleField.focus(); showToast('先写下这件事的标题'); return; }
+        const hours = Number(document.getElementById('entryDurationHours').value || 0);
+        const remainder = Number(document.getElementById('entryDurationMinutes').value || 0);
+        if (!Number.isInteger(hours) || hours < 0 || hours > 24 || !Number.isInteger(remainder) || remainder < 0 || remainder > 59 || hours * 60 + remainder > 1440) {
+          showToast('时长请填写 0 至 24 小时、0 至 59 分钟');
+          return;
+        }
+        const duration = hours * 60 + remainder;
+        const tag = document.getElementById('entryTag').value;
+        if (editingEntryId) {
+          const entry = state.entries.find((item) => item.id === editingEntryId);
+          if (!entry || entry.date !== dateKey(selectedDate)) { editingEntryId = ''; showToast('这条记录已不存在'); render(); return; }
+          Object.assign(entry, { title, detail: content, tag, duration });
+          editingEntryId = '';
+          persist(); activeTag = '全部'; render(); showToast('记录修改已保存');
+          return;
+        }
+        const now = new Date();
+        state.entries.push({ id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()), date: dateKey(selectedDate), time: dateKey(selectedDate) === dateKey(today) ? `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}` : '全天', title, detail: content, tag, project: '', duration });
+        persist(); activeTag = '全部'; render(); showToast('记录已保存到这台设备');
+      };
+      const deleteEntry = (id) => { state.entries = state.entries.filter((entry) => entry.id !== id); if (editingEntryId === id) editingEntryId = ''; persist(); render(); showToast('记录已删除'); };
+      const setView = (nextView) => { view = nextView; if (nextView !== 'day') editingEntryId = ''; activeTag = '全部'; render(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+      document.querySelectorAll('[data-view]').forEach((button) => button.addEventListener('click', () => setView(button.dataset.view)));
+      document.addEventListener('click', (event) => {
+        const entryButton = event.target.closest('[data-open-entry]');
+        if (entryButton) {
+          const entry = state.entries.find((item) => item.id === entryButton.dataset.openEntry);
+          if (entry) openDay(entry.date, entry.id);
+          return;
+        }
+        const dateButton = event.target.closest('[data-open-date]');
+        if (dateButton) openDay(dateButton.dataset.openDate);
+        const categoryButton = event.target.closest('[data-action="manage-categories"]');
+        if (categoryButton) openCategoryManager();
+      });
+      document.getElementById('addCategoryButton').addEventListener('click', addCategory);
+      document.getElementById('newCategoryInput').addEventListener('keydown', (event) => { if (event.key === 'Enter') { event.preventDefault(); addCategory(); } });
+      document.getElementById('closeCategoryDialog').addEventListener('click', () => document.getElementById('categoryDialog').close());
+      document.getElementById('categoryDialog').addEventListener('click', (event) => { if (event.target === event.currentTarget) event.currentTarget.close(); });
+      document.getElementById('newEntry').addEventListener('click', () => { setView('day'); setTimeout(() => document.getElementById('entryTitle')?.focus(), 50); });
+      document.getElementById('jumpToday').addEventListener('click', () => { selectedDate = new Date(today); setView('calendar'); });
+      document.getElementById('backToCalendar').addEventListener('click', () => setView('calendar'));
+      document.getElementById('todayButton').addEventListener('click', () => { editingEntryId = ''; selectedDate = new Date(today); render(); });
+      document.getElementById('previousDate').addEventListener('click', () => { editingEntryId = ''; selectedDate = view === 'day' ? shiftDate(selectedDate, -1) : view === 'week' ? shiftDate(selectedDate, -7) : new Date(selectedDate.getFullYear(), selectedDate.getMonth() - 1, 1); render(); });
+      document.getElementById('nextDate').addEventListener('click', () => { editingEntryId = ''; selectedDate = view === 'day' ? shiftDate(selectedDate, 1) : view === 'week' ? shiftDate(selectedDate, 7) : new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 1); render(); });
+      document.getElementById('searchInput').addEventListener('input', (event) => { searchTerm = event.target.value; render(); });
+      document.getElementById('exportButton').addEventListener('click', () => {
+        const content = ['# 拾日记录', '', ...state.entries.slice().sort((a,b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time)).map((entry) => `## ${entry.date} ${entry.time}\n\n${entry.title}${entry.detail ? `\n\n${entry.detail}` : ''}\n\n分类：${entry.tag}${entry.project ? ` · ${entry.project}` : ''}${entry.duration ? ` · ${formatDuration(entry.duration)}` : ''}\n`)].join('\n');
+        const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' }); const url = URL.createObjectURL(blob); const link = document.createElement('a'); link.href = url; link.download = '拾日记录.md'; link.click(); URL.revokeObjectURL(url); showToast('记录已导出为 Markdown');
+      });
+      render();
+    })();
+  </script>
+</body>
+</html>

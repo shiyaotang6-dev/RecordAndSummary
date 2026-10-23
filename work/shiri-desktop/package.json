@@ -1,0 +1,59 @@
+{
+  "name": "shiri-journal-desktop",
+  "version": "1.0.4",
+  "description": "总结记录单机版",
+  "main": "main.cjs",
+  "private": true,
+  "scripts": {
+    "build-icons": "electron scripts/build-icons.cjs",
+    "sync-assets": "node scripts/sync-assets.cjs",
+    "start": "npm run build-icons && npm run sync-assets && electron .",
+    "build:installer": "npm run build-icons && npm run sync-assets && electron-builder --win nsis --x64",
+    "build:portable": "npm run build-icons && npm run sync-assets && electron-builder --win portable --x64",
+    "build": "npm run build-icons && npm run sync-assets && electron-builder --win nsis portable --x64"
+  },
+  "devDependencies": {
+    "electron": "45.0.0",
+    "electron-builder": "26.15.3"
+  },
+  "build": {
+    "appId": "com.shiri.journal",
+    "productName": "总结记录",
+    "asar": true,
+    "directories": {
+      "output": "../../outputs/installers"
+    },
+    "files": [
+      "main.cjs",
+      "package.json",
+      "app/**/*"
+    ],
+    "extraResources": [
+      { "from": "build/icon.ico", "to": "icon.ico" }
+    ],
+    "win": {
+      "icon": "build/icon.ico",
+      "target": [
+        { "target": "nsis", "arch": ["x64"] },
+        { "target": "portable", "arch": ["x64"] }
+      ],
+      "artifactName": "ZongjieJilu-${version}-${arch}.${ext}"
+    },
+    "nsis": {
+      "artifactName": "总结记录-安装程序-${version}-${arch}.${ext}",
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico",
+      "oneClick": false,
+      "perMachine": false,
+      "allowElevation": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "总结记录",
+      "deleteAppDataOnUninstall": false
+    },
+    "portable": {
+      "artifactName": "总结记录-便携版-${version}-${arch}.${ext}"
+    }
+  }
+}
